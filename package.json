@@ -1,0 +1,66 @@
+{
+    "name": "webbuilder",
+    "version": "0.1.0",
+    "private": true,
+    "description": "AI-powered web builder with visual editing and code generation",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/your-org/webbuilder.git"
+    },
+    "keywords": [
+        "web-builder",
+        "ai",
+        "drag-and-drop",
+        "code-generation",
+        "visual-editor"
+    ],
+    "author": "WebBuilder Team",
+    "license": "MIT",
+    "workspaces": [
+        "apps/*",
+        "packages/*"
+    ],
+    "scripts": {
+        "dev": "turbo dev",
+        "build": "turbo build",
+        "start": "turbo start",
+        "lint": "turbo lint",
+        "test": "turbo test",
+        "test:coverage": "turbo test:coverage",
+        "test:e2e": "turbo test:e2e",
+        "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
+        "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md}\"",
+        "typecheck": "turbo typecheck",
+        "clean": "turbo clean && rm -rf node_modules",
+        "db:generate": "pnpm --filter api db:generate",
+        "db:migrate": "pnpm --filter api db:migrate",
+        "db:push": "pnpm --filter api db:push",
+        "db:seed": "pnpm --filter api db:seed",
+        "db:studio": "pnpm --filter api db:studio",
+        "prepare": "husky install"
+    },
+    "devDependencies": {
+        "@types/node": "^20.10.0",
+        "eslint": "^8.55.0",
+        "husky": "^8.0.3",
+        "lint-staged": "^15.2.0",
+        "prettier": "^3.1.0",
+        "prettier-plugin-tailwindcss": "^0.5.9",
+        "turbo": "^1.11.2",
+        "typescript": "^5.3.2"
+    },
+    "packageManager": "pnpm@8.12.0",
+    "engines": {
+        "node": ">=20.0.0",
+        "pnpm": ">=8.0.0"
+    },
+    "lint-staged": {
+        "*.{ts,tsx,js,jsx}": [
+            "eslint --fix",
+            "prettier --write"
+        ],
+        "*.{json,md}": [
+            "prettier --write"
+        ]
+    }
+}
