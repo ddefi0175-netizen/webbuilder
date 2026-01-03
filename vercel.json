@@ -1,0 +1,73 @@
+{
+    "$schema": "https://openapi.vercel.sh/vercel.json",
+    "version": 2,
+    "framework": "nextjs",
+    "buildCommand": "cd ../.. && pnpm --filter @webbuilder/ai-core build && pnpm --filter @webbuilder/web build",
+    "installCommand": "cd ../.. && pnpm install",
+    "outputDirectory": ".next",
+    "regions": [
+        "iad1"
+    ],
+    "functions": {
+        "app/api/**/*.ts": {
+            "maxDuration": 30
+        }
+    },
+    "headers": [
+        {
+            "source": "/api/(.*)",
+            "headers": [
+                {
+                    "key": "Access-Control-Allow-Credentials",
+                    "value": "true"
+                },
+                {
+                    "key": "Access-Control-Allow-Origin",
+                    "value": "*"
+                },
+                {
+                    "key": "Access-Control-Allow-Methods",
+                    "value": "GET,OPTIONS,PATCH,DELETE,POST,PUT"
+                },
+                {
+                    "key": "Access-Control-Allow-Headers",
+                    "value": "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version"
+                }
+            ]
+        },
+        {
+            "source": "/(.*)",
+            "headers": [
+                {
+                    "key": "X-Content-Type-Options",
+                    "value": "nosniff"
+                },
+                {
+                    "key": "X-Frame-Options",
+                    "value": "DENY"
+                },
+                {
+                    "key": "X-XSS-Protection",
+                    "value": "1; mode=block"
+                },
+                {
+                    "key": "Referrer-Policy",
+                    "value": "strict-origin-when-cross-origin"
+                }
+            ]
+        }
+    ],
+    "redirects": [
+        {
+            "source": "/docs",
+            "destination": "/learn",
+            "permanent": true
+        }
+    ],
+    "env": {
+        "NEXT_PUBLIC_APP_URL": "@next_public_app_url",
+        "OPENAI_API_KEY": "@openai_api_key",
+        "NEXTAUTH_SECRET": "@nextauth_secret",
+        "NEXTAUTH_URL": "@nextauth_url"
+    }
+}

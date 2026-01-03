@@ -2,9 +2,10 @@
 
 🚀 A modern, AI-powered web builder that enables users to create websites through natural language commands, visual drag-and-drop editing, and intelligent code generation.
 
-![License](https://img.shields.io/badge/license-MIT-blue.svg)
+![License](https://img.shields.io/badge/license-GPL--3.0-blue.svg)
 ![Node](https://img.shields.io/badge/node-20%2B-green.svg)
 ![TypeScript](https://img.shields.io/badge/typescript-5.0%2B-blue.svg)
+![CI](https://github.com/ddefi0175-netizen/webbuilder/actions/workflows/ci.yml/badge.svg)
 
 ## ✨ Features
 
