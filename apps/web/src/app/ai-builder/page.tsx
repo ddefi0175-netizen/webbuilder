@@ -53,7 +53,7 @@ interface AIAutoBuilderProps {
     onComplete?: (projectId: string) => void;
 }
 
-export function AIAutoBuilder({ onComplete }: AIAutoBuilderProps) {
+function AIAutoBuilder({ onComplete }: AIAutoBuilderProps) {
     const [step, setStep] = useState(1);
     const [websiteType, setWebsiteType] = useState<string | null>(null);
     const [stylePreset, setStylePreset] = useState<string | null>(null);

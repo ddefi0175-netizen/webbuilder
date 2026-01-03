@@ -1,9 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import OpenAI from 'openai';
 
-const openai = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY,
-});
+function getOpenAIClient() {
+  if (!process.env.OPENAI_API_KEY) {
+    throw new Error('OpenAI API key not configured');
+  }
+  return new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+}
 
 const COMPONENT_PROMPT = `You are an expert web developer. Generate a web component based on the user's description.
 
@@ -60,32 +63,33 @@ Example for "a pricing card with title, price, and CTA button":
 Only return valid JSON, no markdown or explanation.`;
 
 export async function POST(req: NextRequest) {
-    try {
-        const { description } = await req.json();
+  try {
+    const { description } = await req.json();
 
-        const response = await openai.chat.completions.create({
-            model: process.env.OPENAI_MODEL_CHAT || 'gpt-4-turbo-preview',
-            messages: [
-                { role: 'system', content: COMPONENT_PROMPT },
-                { role: 'user', content: `Generate a component for: ${description}` },
-            ],
-            response_format: { type: 'json_object' },
-            temperature: 0.7,
-        });
+    const openai = getOpenAIClient();
+    const response = await openai.chat.completions.create({
+      model: process.env.OPENAI_MODEL_CHAT || 'gpt-4-turbo-preview',
+      messages: [
+        { role: 'system', content: COMPONENT_PROMPT },
+        { role: 'user', content: `Generate a component for: ${description}` },
+      ],
+      response_format: { type: 'json_object' },
+      temperature: 0.7,
+    });
 
-        const content = response.choices[0]?.message?.content;
-        if (!content) {
-            throw new Error('No response from AI');
-        }
-
-        const component = JSON.parse(content);
-
-        return NextResponse.json(component);
-    } catch (error) {
-        console.error('Component Generation Error:', error);
-        return NextResponse.json(
-            { error: 'Failed to generate component' },
-            { status: 500 }
-        );
+    const content = response.choices[0]?.message?.content;
+    if (!content) {
+      throw new Error('No response from AI');
     }
+
+    const component = JSON.parse(content);
+
+    return NextResponse.json(component);
+  } catch (error) {
+    console.error('Component Generation Error:', error);
+    return NextResponse.json(
+      { error: 'Failed to generate component' },
+      { status: 500 }
+    );
+  }
 }

@@ -1,9 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import OpenAI from 'openai';
 
-const openai = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY,
-});
+function getOpenAIClient() {
+    if (!process.env.OPENAI_API_KEY) {
+        throw new Error('OpenAI API key not configured');
+    }
+    return new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+}
 
 const SYSTEM_PROMPT = `You are an expert web developer AI assistant integrated into a visual web builder. 
 Your role is to help users create websites by:
@@ -29,6 +32,7 @@ export async function POST(req: NextRequest) {
             ? `${SYSTEM_PROMPT}\n\nCurrent context: User has selected a ${context.selectedComponent.type} component named "${context.selectedComponent.name}".`
             : SYSTEM_PROMPT;
 
+        const openai = getOpenAIClient();
         const response = await openai.chat.completions.create({
             model: process.env.OPENAI_MODEL_CHAT || 'gpt-4-turbo-preview',
             messages: [

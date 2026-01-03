@@ -2,22 +2,25 @@
 import { NextRequest, NextResponse } from 'next/server';
 import OpenAI from 'openai';
 
-const openai = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY,
-});
+function getOpenAIClient() {
+  if (!process.env.OPENAI_API_KEY) {
+    throw new Error('OpenAI API key not configured');
+  }
+  return new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+}
 
 export async function POST(request: NextRequest) {
-    try {
-        const { websiteType, stylePreset, description, features } = await request.json();
+  try {
+    const { websiteType, stylePreset, description, features } = await request.json();
 
-        if (!process.env.OPENAI_API_KEY) {
-            return NextResponse.json(
-                { error: 'OpenAI API key not configured' },
-                { status: 500 }
-            );
-        }
+    if (!process.env.OPENAI_API_KEY) {
+      return NextResponse.json(
+        { error: 'OpenAI API key not configured' },
+        { status: 500 }
+      );
+    }
 
-        const systemPrompt = `You are an expert web developer and designer AI that generates complete website structures. 
+    const systemPrompt = `You are an expert web developer and designer AI that generates complete website structures. 
 You create modern, responsive, accessible websites using a component-based architecture.
 
 Output Format: Return a JSON object with the following structure:
@@ -54,7 +57,7 @@ Output Format: Return a JSON object with the following structure:
 
 Available component types: container, section, header, footer, nav, hero, heading, text, button, image, card, grid, flex, form, input, testimonials, pricing, features, cta, faq`;
 
-        const userPrompt = `Create a complete ${websiteType} website with the following requirements:
+    const userPrompt = `Create a complete ${websiteType} website with the following requirements:
 
 Style: ${stylePreset}
 Description: ${description}
@@ -71,38 +74,39 @@ Generate a full website structure with:
 
 Return valid JSON only, no markdown.`;
 
-        const response = await openai.chat.completions.create({
-            model: 'gpt-4-turbo-preview',
-            messages: [
-                { role: 'system', content: systemPrompt },
-                { role: 'user', content: userPrompt },
-            ],
-            response_format: { type: 'json_object' },
-            max_tokens: 4000,
-            temperature: 0.7,
-        });
+    const openai = getOpenAIClient();
+    const response = await openai.chat.completions.create({
+      model: 'gpt-4-turbo-preview',
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userPrompt },
+      ],
+      response_format: { type: 'json_object' },
+      max_tokens: 4000,
+      temperature: 0.7,
+    });
 
-        const content = response.choices[0].message.content;
-        if (!content) {
-            throw new Error('No response from AI');
-        }
-
-        const generatedWebsite = JSON.parse(content);
-
-        return NextResponse.json({
-            success: true,
-            website: generatedWebsite,
-            usage: {
-                promptTokens: response.usage?.prompt_tokens || 0,
-                completionTokens: response.usage?.completion_tokens || 0,
-                totalTokens: response.usage?.total_tokens || 0,
-            },
-        });
-    } catch (error) {
-        console.error('AI Auto-Builder error:', error);
-        return NextResponse.json(
-            { error: 'Failed to generate website' },
-            { status: 500 }
-        );
+    const content = response.choices[0].message.content;
+    if (!content) {
+      throw new Error('No response from AI');
     }
+
+    const generatedWebsite = JSON.parse(content);
+
+    return NextResponse.json({
+      success: true,
+      website: generatedWebsite,
+      usage: {
+        promptTokens: response.usage?.prompt_tokens || 0,
+        completionTokens: response.usage?.completion_tokens || 0,
+        totalTokens: response.usage?.total_tokens || 0,
+      },
+    });
+  } catch (error) {
+    console.error('AI Auto-Builder error:', error);
+    return NextResponse.json(
+      { error: 'Failed to generate website' },
+      { status: 500 }
+    );
+  }
 }

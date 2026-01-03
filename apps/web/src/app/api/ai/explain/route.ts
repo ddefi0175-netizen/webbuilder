@@ -1,9 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import OpenAI from 'openai';
 
-const openai = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY,
-});
+function getOpenAIClient() {
+    if (!process.env.OPENAI_API_KEY) {
+        throw new Error('OpenAI API key not configured');
+    }
+    return new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+}
 
 const EXPLAIN_PROMPT = `You are an expert web developer and teacher. Explain the provided code in a clear, concise manner.
 
@@ -19,6 +22,7 @@ export async function POST(req: NextRequest) {
     try {
         const { code } = await req.json();
 
+        const openai = getOpenAIClient();
         const response = await openai.chat.completions.create({
             model: process.env.OPENAI_MODEL_FAST || 'gpt-3.5-turbo',
             messages: [
