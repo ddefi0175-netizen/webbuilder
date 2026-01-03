@@ -20,3 +20,11 @@ export { CloudStoragePanel } from './cloud-storage-panel';
 export { SecurityPanel } from './security-panel';
 export { ChatbotPanel } from './chatbot-panel';
 export { PreviewPanel } from './preview-panel';
+
+// New Feature Panels
+export { FormBuilderPanel } from './form-builder-panel';
+export { AnimationPanel } from './animation-panel';
+export { AIImagePanel } from './ai-image-panel';
+export { PopupBuilderPanel } from './popup-builder-panel';
+export { VersionHistoryPanel } from './version-history-panel';
+export { CustomCodePanel } from './custom-code-panel';

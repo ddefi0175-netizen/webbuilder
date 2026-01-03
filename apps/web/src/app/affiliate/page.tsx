@@ -50,9 +50,15 @@ export default function AffiliatePage() {
     };
 
     const tierInfo = AFFILIATE_TIERS[affiliate.tier];
-    const nextTier = affiliate.tier === 'bronze' ? 'silver' :
-        affiliate.tier === 'silver' ? 'gold' :
-            affiliate.tier === 'gold' ? 'platinum' : null;
+    const getNextTier = (currentTier: string): 'silver' | 'gold' | 'platinum' | null => {
+        switch (currentTier) {
+            case 'bronze': return 'silver';
+            case 'silver': return 'gold';
+            case 'gold': return 'platinum';
+            default: return null;
+        }
+    };
+    const nextTier = getNextTier(affiliate.tier);
     const nextTierInfo = nextTier ? AFFILIATE_TIERS[nextTier] : null;
     const referralsToNext = nextTierInfo ? nextTierInfo.minReferrals - affiliate.totalReferrals : 0;
 

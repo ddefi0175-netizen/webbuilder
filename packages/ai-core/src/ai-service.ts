@@ -192,7 +192,7 @@ export class AIService {
             quality: 'standard',
         });
 
-        return response.data[0]?.url || '';
+        return response.data?.[0]?.url || '';
     }
 
     /**

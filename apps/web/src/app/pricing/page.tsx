@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { BillingCycle, PricingPlan } from '@/types/subscription';
 
-export function PricingPage() {
+export default function PricingPage() {
     const [billingCycle, setBillingCycle] = useState<BillingCycle>('monthly');
 
     const planIcons: Record<string, React.ReactNode> = {
@@ -275,5 +275,3 @@ function PricingFAQ() {
         </div>
     );
 }
-
-export default PricingPage;

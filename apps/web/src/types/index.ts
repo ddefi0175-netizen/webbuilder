@@ -22,7 +22,11 @@ export type ComponentType =
     | 'input'
     | 'textarea'
     | 'select'
-    | 'checkbox';
+    | 'checkbox'
+    | 'header'
+    | 'nav'
+    | 'list'
+    | 'list-item';
 
 export interface ComponentStyles {
     // Layout
@@ -30,6 +34,7 @@ export interface ComponentStyles {
     flexDirection?: string;
     justifyContent?: string;
     alignItems?: string;
+    flexWrap?: string;
     gap?: string;
     gridTemplateColumns?: string;
     gridTemplateRows?: string;
@@ -82,6 +87,7 @@ export interface ComponentStyles {
     // Effects
     boxShadow?: string;
     opacity?: string;
+    transform?: string;
 
     // Position
     position?: string;

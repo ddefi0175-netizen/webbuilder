@@ -110,11 +110,12 @@ export function AIPanel() {
                     <div className="ai-message text-sm">
                         <ReactMarkdown
                             components={{
-                                code({ node, inline, className, children, ...props }) {
+                                code({ className, children, ...props }) {
                                     const match = /language-(\w+)/.exec(className || '');
                                     const codeString = String(children).replace(/\n$/, '');
+                                    const isInline = !match;
 
-                                    if (!inline && match) {
+                                    if (!isInline && match) {
                                         return (
                                             <div className="relative group">
                                                 <Button
@@ -130,10 +131,9 @@ export function AIPanel() {
                                                     )}
                                                 </Button>
                                                 <SyntaxHighlighter
-                                                    style={oneDark}
+                                                    style={oneDark as { [key: string]: React.CSSProperties }}
                                                     language={match[1]}
                                                     PreTag="div"
-                                                    {...props}
                                                 >
                                                     {codeString}
                                                 </SyntaxHighlighter>

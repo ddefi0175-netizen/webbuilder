@@ -16,7 +16,12 @@ import {
     X,
     ChevronLeft,
     ChevronRight,
-    Sparkles
+    Sparkles,
+    Image,
+    MessageSquare,
+    History,
+    Code,
+    Wand2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -34,6 +39,12 @@ import { CollaborationPanel } from './panels/collaboration-panel';
 import { CloudStoragePanel } from './panels/cloud-storage-panel';
 import { SecurityPanel } from './panels/security-panel';
 import { PreviewPanel } from './panels/preview-panel';
+import { FormBuilderPanel } from './panels/form-builder-panel';
+import { AnimationPanel } from './panels/animation-panel';
+import { AIImagePanel } from './panels/ai-image-panel';
+import { PopupBuilderPanel } from './panels/popup-builder-panel';
+import { VersionHistoryPanel } from './panels/version-history-panel';
+import { CustomCodePanel } from './panels/custom-code-panel';
 
 type ToolId =
     | 'seo'
@@ -46,14 +57,20 @@ type ToolId =
     | 'collaboration'
     | 'storage'
     | 'security'
-    | 'preview';
+    | 'preview'
+    | 'forms'
+    | 'animations'
+    | 'ai-images'
+    | 'popups'
+    | 'versions'
+    | 'code';
 
 interface Tool {
     id: ToolId;
     name: string;
     icon: typeof Search;
     description: string;
-    category: 'marketing' | 'commerce' | 'team' | 'settings';
+    category: 'marketing' | 'commerce' | 'team' | 'settings' | 'design';
 }
 
 const tools: Tool[] = [
@@ -61,6 +78,12 @@ const tools: Tool[] = [
     { id: 'seo', name: 'SEO', icon: Search, description: 'Optimize for search engines', category: 'marketing' },
     { id: 'content', name: 'AI Content', icon: Sparkles, description: 'Generate AI content', category: 'marketing' },
     { id: 'analytics', name: 'Analytics', icon: BarChart3, description: 'View website stats', category: 'marketing' },
+    { id: 'popups', name: 'Popups', icon: MessageSquare, description: 'Create popups & modals', category: 'marketing' },
+
+    // Design & Visuals
+    { id: 'ai-images', name: 'AI Images', icon: Image, description: 'Generate & edit images', category: 'design' },
+    { id: 'animations', name: 'Animations', icon: Wand2, description: 'Add animations', category: 'design' },
+    { id: 'forms', name: 'Forms', icon: FileText, description: 'Build forms', category: 'design' },
 
     // E-Commerce
     { id: 'ecommerce', name: 'E-Commerce', icon: ShoppingCart, description: 'Manage products & sales', category: 'commerce' },
@@ -69,16 +92,19 @@ const tools: Tool[] = [
     // Team & Collaboration
     { id: 'collaboration', name: 'Team', icon: Users, description: 'Collaborate with team', category: 'team' },
     { id: 'language', name: 'Languages', icon: Languages, description: 'Multi-language support', category: 'team' },
+    { id: 'versions', name: 'Versions', icon: History, description: 'Version history', category: 'team' },
 
     // Settings & Infrastructure
     { id: 'domain', name: 'Domain', icon: Globe, description: 'Custom domain settings', category: 'settings' },
     { id: 'storage', name: 'Storage', icon: Cloud, description: 'Cloud file storage', category: 'settings' },
     { id: 'security', name: 'Security', icon: Shield, description: 'SSL & GDPR settings', category: 'settings' },
+    { id: 'code', name: 'Code', icon: Code, description: 'Custom code injection', category: 'settings' },
     { id: 'preview', name: 'Preview', icon: Eye, description: 'Device preview options', category: 'settings' },
 ];
 
 const categoryLabels: Record<Tool['category'], string> = {
     marketing: 'Marketing',
+    design: 'Design',
     commerce: 'Commerce',
     team: 'Team',
     settings: 'Settings',
@@ -96,6 +122,12 @@ const toolPanels: Record<ToolId, React.ComponentType> = {
     storage: CloudStoragePanel,
     security: SecurityPanel,
     preview: PreviewPanel,
+    forms: FormBuilderPanel,
+    animations: AnimationPanel,
+    'ai-images': AIImagePanel,
+    popups: PopupBuilderPanel,
+    versions: VersionHistoryPanel,
+    code: CustomCodePanel,
 };
 
 interface ToolsSidebarProps {
