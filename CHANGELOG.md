@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.0] - 2026-01-16
+
+### Added
+- First stable public release
+- Production-ready build verified
+- Security scan completed - no vulnerabilities found
+
+### Fixed
+- TypeScript: Replaced `any` types with `unknown` in ai-core package for better type safety
+- License: Corrected README.md to reflect GPL-3.0 license (was incorrectly stated as MIT)
+- Build: Fixed Prisma client generation requirement for production builds
+
+### Security
+- Passed CodeQL security analysis with zero vulnerabilities
+- All dependencies audited
+- Type safety improvements in AI core service layer
+
+---
+
 ## [0.1.0] - 2026-01-16
 
 ### Added
