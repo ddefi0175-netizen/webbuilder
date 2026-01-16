@@ -324,6 +324,30 @@ Please include:
 - Possible implementation approach
 - Mockups or examples (if applicable)
 
+## Deployment Setup
+
+If you're a maintainer or need to set up deployments, see the comprehensive deployment guide:
+
+📖 **[DEPLOYMENT.md](./DEPLOYMENT.md)** - Complete guide covering:
+
+- Vercel token setup
+- GitHub Secrets configuration
+- Environment variables
+- Troubleshooting deployment issues
+- Advanced deployment configuration
+
+### Quick Deployment Checklist
+
+For maintainers setting up automated deployments:
+
+- [ ] Create Vercel token at https://vercel.com/account/tokens
+- [ ] Add `VERCEL_TOKEN` to GitHub repository secrets
+- [ ] Configure environment variables in Vercel dashboard
+- [ ] Test deployment by pushing to `main` branch
+- [ ] Verify deployment in GitHub Actions and Vercel dashboard
+
+**Note:** Contributors don't need to set up deployment. This is only required for project maintainers.
+
 ## Questions?
 
 If you have questions, feel free to:
