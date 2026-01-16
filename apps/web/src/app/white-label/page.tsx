@@ -242,7 +242,7 @@ export default function WhiteLabelPage() {
                                             placeholder="builder.yourdomain.com"
                                         />
                                         <p className="text-sm text-muted-foreground mt-2">
-                                            Point your domain's CNAME to: <code className="bg-muted px-1.5 py-0.5 rounded">custom.webbuilder.app</code>
+                                            Point your domain&apos;s CNAME to: <code className="bg-muted px-1.5 py-0.5 rounded">custom.webbuilder.app</code>
                                         </p>
                                     </div>
 
@@ -263,7 +263,7 @@ export default function WhiteLabelPage() {
                                             <Check className="h-5 w-5 text-green-500" />
                                             <div>
                                                 <div className="font-medium text-green-700">SSL Automatically Provisioned</div>
-                                                <div className="text-sm text-green-600">We'll generate a free SSL certificate for your domain</div>
+                                                <div className="text-sm text-green-600">We&apos;ll generate a free SSL certificate for your domain</div>
                                             </div>
                                         </div>
                                     </div>

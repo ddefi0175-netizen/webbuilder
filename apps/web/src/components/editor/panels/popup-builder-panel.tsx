@@ -197,12 +197,12 @@ export function PopupBuilderPanel() {
 
                                 <label className="flex items-center gap-2 cursor-pointer">
                                     <input type="checkbox" className="rounded" defaultChecked />
-                                    <span className="text-sm">Don't show again after closing</span>
+                                    <span className="text-sm">Don&apos;t show again after closing</span>
                                 </label>
 
                                 <label className="flex items-center gap-2 cursor-pointer">
                                     <input type="checkbox" className="rounded" defaultChecked />
-                                    <span className="text-sm">Respect "Do Not Track"</span>
+                                    <span className="text-sm">Respect &ldquo;Do Not Track&rdquo;</span>
                                 </label>
 
                                 <label className="flex items-center gap-2 cursor-pointer">

@@ -173,7 +173,7 @@ export function SecurityPanel() {
                                 <div className="flex items-center justify-between p-3 border rounded-lg">
                                     <div>
                                         <p className="text-sm font-medium">Certificate Provider</p>
-                                        <p className="text-xs text-muted-foreground">Let's Encrypt</p>
+                                        <p className="text-xs text-muted-foreground">Let&apos;s Encrypt</p>
                                     </div>
                                     <Lock className="h-4 w-4 text-muted-foreground" />
                                 </div>

@@ -42,7 +42,7 @@
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-org/webbuilder.git
+git clone https://github.com/ddefi0175-netizen/webbuilder.git
 
 # Install dependencies
 cd webbuilder

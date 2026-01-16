@@ -310,6 +310,134 @@ ${css}
 `;
 }
 
+function componentToVue(
+    component: Component,
+    components: Map<string, Component>,
+    depth = 0
+): string {
+    const indent = '  '.repeat(depth);
+    const className = `wb-${component.id}`;
+
+    const getChildrenTemplate = () => {
+        return component.children
+            .map((childId) => {
+                const child = components.get(childId);
+                return child ? componentToVue(child, components, depth + 1) : '';
+            })
+            .filter(Boolean)
+            .join('\n');
+    };
+
+    switch (component.type) {
+        case 'container':
+            return `${indent}<div class="${className}">\n${getChildrenTemplate()}\n${indent}</div>`;
+
+        case 'text':
+            const textContent = component.props.content || '';
+            return `${indent}<p class="${className}">${textContent}</p>`;
+
+        case 'heading':
+            const tag = component.props.level || 'h1';
+            const headingContent = component.props.content || '';
+            return `${indent}<${tag} class="${className}">${headingContent}</${tag}>`;
+
+        case 'button':
+            const buttonText = component.props.text || 'Button';
+            return `${indent}<button class="${className}">${buttonText}</button>`;
+
+        case 'image':
+            return `${indent}<img class="${className}" src="${component.props.src || ''}" alt="${component.props.alt || ''}" />`;
+
+        case 'link':
+            const linkText = component.props.text || 'Link';
+            return `${indent}<a class="${className}" href="${component.props.href || '#'}">${linkText}</a>`;
+
+        case 'input':
+            return `${indent}<input class="${className}" type="${component.props.type || 'text'}" placeholder="${component.props.placeholder || ''}" />`;
+
+        case 'section':
+            return `${indent}<section class="${className}">\n${getChildrenTemplate()}\n${indent}</section>`;
+
+        case 'nav':
+            return `${indent}<nav class="${className}">\n${getChildrenTemplate()}\n${indent}</nav>`;
+
+        case 'footer':
+            return `${indent}<footer class="${className}">\n${getChildrenTemplate()}\n${indent}</footer>`;
+
+        case 'header':
+            return `${indent}<header class="${className}">\n${getChildrenTemplate()}\n${indent}</header>`;
+
+        case 'form':
+            return `${indent}<form class="${className}">\n${getChildrenTemplate()}\n${indent}</form>`;
+
+        case 'list':
+            const listTag = component.props.ordered ? 'ol' : 'ul';
+            return `${indent}<${listTag} class="${className}">\n${getChildrenTemplate()}\n${indent}</${listTag}>`;
+
+        case 'list-item':
+            const listItemContent = component.props.content || '';
+            return `${indent}<li class="${className}">${listItemContent}</li>`;
+
+        case 'icon':
+            return `${indent}<span class="${className} icon icon-${component.props.name || 'default'}"></span>`;
+
+        case 'video':
+            return `${indent}<video class="${className}" src="${component.props.src || ''}" ${component.props.controls ? 'controls' : ''}></video>`;
+
+        case 'divider':
+            return `${indent}<hr class="${className}" />`;
+
+        case 'spacer':
+            return `${indent}<div class="${className}"></div>`;
+
+        case 'card':
+            return `${indent}<article class="${className}">\n${getChildrenTemplate()}\n${indent}</article>`;
+
+        default:
+            return `${indent}<div class="${className}">\n${getChildrenTemplate()}\n${indent}</div>`;
+    }
+}
+
+export function exportToVue(
+    components: Map<string, Component>,
+    options: ExportOptions
+): string {
+    const rootComponent = components.get('root');
+    if (!rootComponent) return '';
+
+    const template = componentToVue(rootComponent, components, 2);
+
+    // Generate CSS
+    let css = '';
+    if (options.includeStyles) {
+        const cssRules: string[] = [];
+        components.forEach((component) => {
+            const rule = stylesToCSS(component.styles, `.wb-${component.id}`);
+            if (rule) cssRules.push(rule);
+        });
+        css = cssRules.join('\n\n');
+    }
+
+    return `<template>
+  ${template.split('\n').map(line => line.trim() ? line : '').filter(Boolean).join('\n  ')}
+</template>
+
+<script setup>
+// Component logic here
+</script>
+
+<style scoped>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+${css}
+</style>
+`;
+}
+
 function minifyHTML(html: string): string {
     return html
         .replace(/\n\s*/g, '')
@@ -328,8 +456,7 @@ export function exportProject(
         case 'react':
             return exportToReact(components, options);
         case 'vue':
-            // TODO: Implement Vue export
-            return '// Vue export coming soon';
+            return exportToVue(components, options);
         default:
             return exportToHTML(components, options);
     }
