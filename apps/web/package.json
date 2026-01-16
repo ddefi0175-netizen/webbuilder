@@ -4,7 +4,7 @@
     "private": true,
     "scripts": {
         "dev": "next dev",
-        "build": "next build",
+        "build": "prisma generate && next build",
         "start": "next start",
         "lint": "next lint",
         "test": "vitest",
@@ -86,6 +86,7 @@
         "vitest": "^1.1.0"
     },
     "prisma": {
+        "schema": "prisma/schema.prisma",
         "seed": "tsx prisma/seed.ts"
     }
 }
