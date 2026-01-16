@@ -6,6 +6,9 @@ import { checkRateLimit, getRateLimitIdentifier, getRateLimitType } from '@/lib/
 import { aiGenerateComponentSchema } from '@/lib/validation';
 import { ValidationError, handleApiError, getErrorStatus } from '@/lib/errors';
 
+// Force dynamic rendering for this route
+export const dynamic = 'force-dynamic';
+
 function getOpenAIClient() {
   if (!process.env.OPENAI_API_KEY) {
     throw new Error('OpenAI API key not configured');

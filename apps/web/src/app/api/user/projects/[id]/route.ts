@@ -4,6 +4,9 @@ import { getSession, requireAuth } from '@/lib/auth';
 import { updateProjectSchema } from '@/lib/validation';
 import { ValidationError, NotFoundError, ForbiddenError, handleApiError, getErrorStatus } from '@/lib/errors';
 
+// Force dynamic rendering for this route
+export const dynamic = 'force-dynamic';
+
 // GET - Get specific project
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
     try {
