@@ -4,6 +4,9 @@ import { getSession, requireAuth } from '@/lib/auth';
 import { updateProfileSchema } from '@/lib/validation';
 import { ValidationError, handleApiError, getErrorStatus } from '@/lib/errors';
 
+// Force dynamic rendering for this route
+export const dynamic = 'force-dynamic';
+
 // GET - Get user profile
 export async function GET(req: NextRequest) {
     try {

@@ -3,6 +3,9 @@ import { db } from '@/lib/db';
 import { getSession, requireAuth } from '@/lib/auth';
 import { handleApiError, getErrorStatus } from '@/lib/errors';
 
+// Force dynamic rendering for this route
+export const dynamic = 'force-dynamic';
+
 // GET - Get user usage statistics
 export async function GET(req: NextRequest) {
     try {
