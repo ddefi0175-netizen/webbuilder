@@ -2,10 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import OpenAI from 'openai';
 import { db } from '@/lib/db';
 import { getSession, requireAuth } from '@/lib/auth';
-import { getSession } from '@/lib/auth';
 import { checkRateLimit, getRateLimitIdentifier, getRateLimitType } from '@/lib/rate-limit';
 import { aiChatSchema } from '@/lib/validation';
-import { ValidationError, handleApiError, getErrorStatus, UnauthorizedError } from '@/lib/errors';
+import { ValidationError, handleApiError, getErrorStatus } from '@/lib/errors';
 
 function getOpenAIClient() {
     if (!process.env.OPENAI_API_KEY) {
@@ -75,15 +74,15 @@ export async function POST(req: NextRequest) {
             stream: true,
         });
 
-        // Track usage
-        await db.usage.create({
+        // Track usage asynchronously to avoid blocking the response
+        db.usage.create({
             data: {
                 userId,
                 type: 'ai_chat',
                 amount: 1,
                 metadata: { messageCount: messages.length },
             },
-        });
+        }).catch(err => console.error('Failed to track usage:', err));
 
         // Create a streaming response
         const encoder = new TextEncoder();

@@ -13,8 +13,6 @@ function getOpenAIClient() {
   }
   return new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 }
-  return new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-}
 
 export async function POST(request: NextRequest) {
   try {
@@ -41,7 +39,16 @@ export async function POST(request: NextRequest) {
     const identifier = getRateLimitIdentifier(request, userId);
     await checkRateLimit(identifier, 'ai');
 
-    const { websiteType, stylePreset, description, features } = await request.json();
+    // Validate request body
+    const body = await request.json();
+    const validationResult = aiAutoBuildSchema.safeParse(body);
+
+    if (!validationResult.success) {
+      throw new ValidationError('Validation failed', validationResult.error.flatten());
+    }
+
+    const { prompt } = validationResult.data;
+    const { websiteType, stylePreset, description, features } = body;
 
     if (!process.env.OPENAI_API_KEY) {
       return NextResponse.json(

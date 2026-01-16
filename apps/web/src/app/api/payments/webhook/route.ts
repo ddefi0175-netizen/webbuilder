@@ -103,7 +103,12 @@ async function handleCheckoutCompleted(session: any) {
 
     try {
         // Get price ID to determine tier
-        const priceId = session.line_items?.data[0]?.price?.id;
+        const priceId = session.line_items?.data?.[0]?.price?.id;
+        
+        if (!priceId) {
+            console.error('No price ID found in checkout session');
+            return;
+        }
         
         // Determine tier based on price ID (configure these in your env)
         let tier: 'FREE' | 'PRO' | 'BUSINESS' = 'PRO';

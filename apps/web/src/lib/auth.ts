@@ -168,10 +168,11 @@ export async function verifyPassword(password: string, hashedPassword: string): 
 }
 
 /**
- * Generate a random token for email verification or password reset
+ * Generate a cryptographically secure random token
  */
 export function generateToken(): string {
-    return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+    const crypto = require('crypto');
+    return crypto.randomBytes(32).toString('hex');
 }
 
 /**
