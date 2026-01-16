@@ -9,6 +9,13 @@ env:
   NODE_VERSION: '20'
   PNPM_VERSION: '8'
 
+# Required Secrets:
+# - VERCEL_TOKEN: Your Vercel authentication token (Required)
+# - VERCEL_ORG_ID: Your Vercel organization ID (Optional - auto-detected)
+# - VERCEL_PROJECT_ID: Your Vercel project ID (Optional - auto-detected)
+#
+# See DEPLOYMENT.md for detailed setup instructions
+
 jobs:
   deploy-preview:
     name: Deploy Preview
@@ -20,6 +27,29 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Validate secrets
+        run: |
+          if [ -z "${{ secrets.VERCEL_TOKEN }}" ]; then
+            echo "❌ Error: VERCEL_TOKEN secret is not configured"
+            echo ""
+            echo "The deployment workflow requires a Vercel token to authenticate."
+            echo "Please add your Vercel token to the repository secrets."
+            echo ""
+            echo "📖 See DEPLOYMENT.md for detailed instructions on:"
+            echo "  • How to get a Vercel token"
+            echo "  • How to add secrets to GitHub"
+            echo "  • Complete deployment setup guide"
+            echo ""
+            echo "Quick start:"
+            echo "  1. Go to https://vercel.com/account/tokens"
+            echo "  2. Create a new token"
+            echo "  3. Add it to GitHub: Settings → Secrets → Actions → New secret"
+            echo "     Name: VERCEL_TOKEN"
+            echo "     Value: [your token]"
+            exit 1
+          fi
+          echo "✅ Required secrets are configured"
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v2
@@ -57,6 +87,29 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Validate secrets
+        run: |
+          if [ -z "${{ secrets.VERCEL_TOKEN }}" ]; then
+            echo "❌ Error: VERCEL_TOKEN secret is not configured"
+            echo ""
+            echo "The deployment workflow requires a Vercel token to authenticate."
+            echo "Please add your Vercel token to the repository secrets."
+            echo ""
+            echo "📖 See DEPLOYMENT.md for detailed instructions on:"
+            echo "  • How to get a Vercel token"
+            echo "  • How to add secrets to GitHub"
+            echo "  • Complete deployment setup guide"
+            echo ""
+            echo "Quick start:"
+            echo "  1. Go to https://vercel.com/account/tokens"
+            echo "  2. Create a new token"
+            echo "  3. Add it to GitHub: Settings → Secrets → Actions → New secret"
+            echo "     Name: VERCEL_TOKEN"
+            echo "     Value: [your token]"
+            exit 1
+          fi
+          echo "✅ Required secrets are configured"
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v2
