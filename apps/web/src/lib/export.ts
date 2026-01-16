@@ -419,7 +419,7 @@ export function exportToVue(
     }
 
     return `<template>
-${template}
+  ${template.split('\n').map(line => line.trim() ? line : '').filter(Boolean).join('\n  ')}
 </template>
 
 <script setup>

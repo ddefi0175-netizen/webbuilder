@@ -3,6 +3,8 @@ import react from '@vitejs/plugin-react';
 import path from 'path';
 
 export default defineConfig({
+    // Type assertion needed due to vite version mismatch between vitest and @vitejs/plugin-react
+    // This is a known compatibility issue and safe to ignore
     plugins: [react()] as any,
     test: {
         environment: 'jsdom',
