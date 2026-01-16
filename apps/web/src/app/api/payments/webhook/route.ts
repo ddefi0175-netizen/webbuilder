@@ -1,6 +1,7 @@
 // Stripe Webhook Handler
 import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
+import { db } from '@/lib/db';
 
 const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET;
 
@@ -92,51 +93,173 @@ export async function POST(request: NextRequest) {
 
 async function handleCheckoutCompleted(session: any) {
     const userId = session.client_reference_id;
-    const subscriptionId = session.subscription;
     const customerId = session.customer;
+    const subscriptionId = session.subscription;
 
-    // TODO: Update user's subscription in database
-    console.log('Checkout completed:', { userId, subscriptionId, customerId });
+    if (!userId) {
+        console.error('No user ID in checkout session');
+        return;
+    }
 
-    // Would typically:
-    // 1. Get subscription details from Stripe
-    // 2. Determine the plan tier from the price ID
-    // 3. Update user's subscription in database
-    // 4. Send welcome email
+    try {
+        // Get price ID to determine tier
+        const priceId = session.line_items?.data?.[0]?.price?.id;
+        
+        if (!priceId) {
+            console.error('No price ID found in checkout session');
+            return;
+        }
+        
+        // Determine tier based on price ID (configure these in your env)
+        let tier: 'FREE' | 'PRO' | 'BUSINESS' = 'PRO';
+        let credits = 1000;
+
+        if (priceId === process.env.STRIPE_PRICE_ID_PRO) {
+            tier = 'PRO';
+            credits = 1000;
+        } else if (priceId === process.env.STRIPE_PRICE_ID_BUSINESS) {
+            tier = 'BUSINESS';
+            credits = 10000;
+        }
+
+        // Update or create subscription
+        await db.subscription.upsert({
+            where: { userId },
+            update: {
+                stripeCustomerId: customerId,
+                stripePriceId: priceId,
+                tier,
+                status: 'ACTIVE',
+                creditsRemaining: credits,
+                creditsTotal: credits,
+            },
+            create: {
+                userId,
+                stripeCustomerId: customerId,
+                stripePriceId: priceId,
+                tier,
+                status: 'ACTIVE',
+                creditsRemaining: credits,
+                creditsTotal: credits,
+            },
+        });
+
+        console.log(`Checkout completed for user ${userId}: ${tier} plan`);
+    } catch (error) {
+        console.error('Error handling checkout completion:', error);
+    }
 }
 
 async function handleSubscriptionCreated(subscription: any) {
-    console.log('Subscription created:', subscription.id);
-    // TODO: Create subscription record in database
+    const customerId = subscription.customer;
+    const priceId = subscription.items.data[0]?.price?.id;
+    const currentPeriodEnd = new Date(subscription.current_period_end * 1000);
+
+    try {
+        // Find user by Stripe customer ID
+        const existingSubscription = await db.subscription.findUnique({
+            where: { stripeCustomerId: customerId },
+        });
+
+        if (existingSubscription) {
+            await db.subscription.update({
+                where: { stripeCustomerId: customerId },
+                data: {
+                    stripePriceId: priceId,
+                    stripeCurrentPeriodEnd: currentPeriodEnd,
+                    status: 'ACTIVE',
+                },
+            });
+        }
+
+        console.log('Subscription created:', subscription.id);
+    } catch (error) {
+        console.error('Error handling subscription creation:', error);
+    }
 }
 
 async function handleSubscriptionUpdated(subscription: any) {
-    console.log('Subscription updated:', subscription.id);
-
-    // Handle plan changes, status changes, etc.
+    const customerId = subscription.customer;
     const status = subscription.status;
     const cancelAtPeriodEnd = subscription.cancel_at_period_end;
+    const currentPeriodEnd = new Date(subscription.current_period_end * 1000);
 
-    // TODO: Update subscription in database
+    try {
+        await db.subscription.update({
+            where: { stripeCustomerId: customerId },
+            data: {
+                status: status.toUpperCase(),
+                stripeCurrentPeriodEnd: currentPeriodEnd,
+            },
+        });
+
+        console.log('Subscription updated:', subscription.id, { status, cancelAtPeriodEnd });
+    } catch (error) {
+        console.error('Error handling subscription update:', error);
+    }
 }
 
 async function handleSubscriptionCanceled(subscription: any) {
-    console.log('Subscription canceled:', subscription.id);
+    const customerId = subscription.customer;
 
-    // TODO: Update user to free plan
-    // TODO: Send cancellation email
+    try {
+        // Reset to free tier
+        await db.subscription.update({
+            where: { stripeCustomerId: customerId },
+            data: {
+                tier: 'FREE',
+                status: 'CANCELED',
+                creditsRemaining: 100,
+                creditsTotal: 100,
+            },
+        });
+
+        console.log('Subscription canceled:', subscription.id);
+        // TODO: Send cancellation email
+    } catch (error) {
+        console.error('Error handling subscription cancellation:', error);
+    }
 }
 
 async function handlePaymentSucceeded(invoice: any) {
-    console.log('Payment succeeded:', invoice.id);
+    const customerId = invoice.customer;
+    const amountPaid = invoice.amount_paid / 100; // Convert from cents
 
-    // TODO: Update payment history
-    // TODO: Reset monthly usage if applicable
+    try {
+        // Reset credits for the billing period
+        const subscription = await db.subscription.findUnique({
+            where: { stripeCustomerId: customerId },
+        });
+
+        if (subscription) {
+            await db.subscription.update({
+                where: { stripeCustomerId: customerId },
+                data: {
+                    creditsRemaining: subscription.creditsTotal,
+                },
+            });
+        }
+
+        console.log('Payment succeeded:', invoice.id, { amountPaid });
+    } catch (error) {
+        console.error('Error handling payment success:', error);
+    }
 }
 
 async function handlePaymentFailed(invoice: any) {
-    console.log('Payment failed:', invoice.id);
+    const customerId = invoice.customer;
 
-    // TODO: Send payment failed email
-    // TODO: Update subscription status to past_due
+    try {
+        await db.subscription.update({
+            where: { stripeCustomerId: customerId },
+            data: {
+                status: 'PAST_DUE',
+            },
+        });
+
+        console.log('Payment failed:', invoice.id);
+        // TODO: Send payment failed email
+    } catch (error) {
+        console.error('Error handling payment failure:', error);
+    }
 }

@@ -1,5 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import OpenAI from 'openai';
+import { db } from '@/lib/db';
+import { getSession, requireAuth } from '@/lib/auth';
+import { checkRateLimit, getRateLimitIdentifier, getRateLimitType } from '@/lib/rate-limit';
+import { aiGenerateComponentSchema } from '@/lib/validation';
+import { ValidationError, handleApiError, getErrorStatus } from '@/lib/errors';
 
 function getOpenAIClient() {
   if (!process.env.OPENAI_API_KEY) {
@@ -64,7 +69,38 @@ Only return valid JSON, no markdown or explanation.`;
 
 export async function POST(req: NextRequest) {
   try {
-    const { description } = await req.json();
+    // Require authentication
+    const session = await getSession();
+    await requireAuth(session);
+
+    const userId = session!.user.id;
+
+    // Get user's subscription for rate limiting
+    const subscription = await db.subscription.findUnique({
+      where: { userId },
+    });
+
+    // Check if user has sufficient credits
+    if (!subscription || subscription.creditsRemaining < 5) {
+      return NextResponse.json(
+        { error: 'Insufficient credits. Please upgrade your plan.' },
+        { status: 402 }
+      );
+    }
+
+    // Check rate limit based on tier
+    const identifier = getRateLimitIdentifier(req, userId);
+    await checkRateLimit(identifier, 'ai');
+
+    // Validate request body
+    const body = await req.json();
+    const validationResult = aiGenerateComponentSchema.safeParse(body);
+
+    if (!validationResult.success) {
+      throw new ValidationError('Validation failed', validationResult.error.flatten());
+    }
+
+    const { description } = validationResult.data;
 
     const openai = getOpenAIClient();
     const response = await openai.chat.completions.create({
@@ -84,12 +120,27 @@ export async function POST(req: NextRequest) {
 
     const component = JSON.parse(content);
 
+    // Deduct credits and track usage
+    await Promise.all([
+      db.subscription.update({
+        where: { userId },
+        data: { creditsRemaining: { decrement: 5 } },
+      }),
+      db.usage.create({
+        data: {
+          userId,
+          type: 'ai_generate_component',
+          amount: 5,
+          metadata: { description: description.substring(0, 100) },
+        },
+      }),
+    ]);
+
     return NextResponse.json(component);
   } catch (error) {
     console.error('Component Generation Error:', error);
-    return NextResponse.json(
-      { error: 'Failed to generate component' },
-      { status: 500 }
-    );
+    const status = getErrorStatus(error);
+    const errorResponse = handleApiError(error);
+    return NextResponse.json(errorResponse, { status });
   }
 }

@@ -1,5 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import OpenAI from 'openai';
+import { db } from '@/lib/db';
+import { getSession, requireAuth } from '@/lib/auth';
+import { checkRateLimit, getRateLimitIdentifier, getRateLimitType } from '@/lib/rate-limit';
+import { aiChatSchema } from '@/lib/validation';
+import { ValidationError, handleApiError, getErrorStatus } from '@/lib/errors';
 
 function getOpenAIClient() {
     if (!process.env.OPENAI_API_KEY) {
@@ -26,7 +31,31 @@ Be concise but helpful. Format code snippets in markdown code blocks with the ap
 
 export async function POST(req: NextRequest) {
     try {
-        const { messages, context } = await req.json();
+        // Require authentication
+        const session = await getSession();
+        await requireAuth(session);
+
+        const userId = session!.user.id;
+
+        // Get user's subscription for rate limiting
+        const subscription = await db.subscription.findUnique({
+            where: { userId },
+        });
+
+        // Check rate limit based on tier
+        const identifier = getRateLimitIdentifier(req, userId);
+        const rateLimitType = getRateLimitType(subscription?.tier);
+        await checkRateLimit(identifier, 'ai'); // Use AI-specific rate limit
+
+        // Validate request body
+        const body = await req.json();
+        const validationResult = aiChatSchema.safeParse(body);
+
+        if (!validationResult.success) {
+            throw new ValidationError('Validation failed', validationResult.error.flatten());
+        }
+
+        const { messages, context } = validationResult.data;
 
         const systemMessage = context?.selectedComponent
             ? `${SYSTEM_PROMPT}\n\nCurrent context: User has selected a ${context.selectedComponent.type} component named "${context.selectedComponent.name}".`
@@ -44,6 +73,16 @@ export async function POST(req: NextRequest) {
             ],
             stream: true,
         });
+
+        // Track usage asynchronously to avoid blocking the response
+        db.usage.create({
+            data: {
+                userId,
+                type: 'ai_chat',
+                amount: 1,
+                metadata: { messageCount: messages.length },
+            },
+        }).catch((err: unknown) => console.error('Failed to track usage:', err));
 
         // Create a streaming response
         const encoder = new TextEncoder();
@@ -67,9 +106,8 @@ export async function POST(req: NextRequest) {
         });
     } catch (error) {
         console.error('AI Chat Error:', error);
-        return NextResponse.json(
-            { error: 'Failed to process AI request' },
-            { status: 500 }
-        );
+        const status = getErrorStatus(error);
+        const errorResponse = handleApiError(error);
+        return NextResponse.json(errorResponse, { status });
     }
 }

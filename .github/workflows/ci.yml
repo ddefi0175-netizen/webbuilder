@@ -56,6 +56,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Generate Prisma Client
+        run: pnpm --filter @webbuilder/web db:generate
+
       - name: Run TypeScript check
         run: pnpm --filter @webbuilder/web typecheck
 
@@ -112,6 +115,9 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+
+      - name: Generate Prisma Client
+        run: pnpm --filter @webbuilder/web db:generate
 
       - name: Build packages
         run: pnpm --filter @webbuilder/ai-core build

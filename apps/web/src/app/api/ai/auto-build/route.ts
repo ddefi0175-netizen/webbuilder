@@ -1,6 +1,11 @@
 // AI Auto-Builder API
 import { NextRequest, NextResponse } from 'next/server';
 import OpenAI from 'openai';
+import { db } from '@/lib/db';
+import { getSession, requireAuth } from '@/lib/auth';
+import { checkRateLimit, getRateLimitIdentifier } from '@/lib/rate-limit';
+import { aiAutoBuildSchema } from '@/lib/validation';
+import { ValidationError, handleApiError, getErrorStatus } from '@/lib/errors';
 
 function getOpenAIClient() {
   if (!process.env.OPENAI_API_KEY) {
@@ -11,7 +16,39 @@ function getOpenAIClient() {
 
 export async function POST(request: NextRequest) {
   try {
-    const { websiteType, stylePreset, description, features } = await request.json();
+    // Require authentication
+    const session = await getSession();
+    await requireAuth(session);
+
+    const userId = session!.user.id;
+
+    // Get user's subscription
+    const subscription = await db.subscription.findUnique({
+      where: { userId },
+    });
+
+    // Check if user has sufficient credits (auto-build is expensive)
+    if (!subscription || subscription.creditsRemaining < 20) {
+      return NextResponse.json(
+        { error: 'Insufficient credits. Auto-build requires 20 credits. Please upgrade your plan.' },
+        { status: 402 }
+      );
+    }
+
+    // Check rate limit
+    const identifier = getRateLimitIdentifier(request, userId);
+    await checkRateLimit(identifier, 'ai');
+
+    // Validate request body
+    const body = await request.json();
+    const validationResult = aiAutoBuildSchema.safeParse(body);
+
+    if (!validationResult.success) {
+      throw new ValidationError('Validation failed', validationResult.error.flatten());
+    }
+
+    const { prompt } = validationResult.data;
+    const { websiteType, stylePreset, description, features } = body;
 
     if (!process.env.OPENAI_API_KEY) {
       return NextResponse.json(
@@ -93,6 +130,26 @@ Return valid JSON only, no markdown.`;
 
     const generatedWebsite = JSON.parse(content);
 
+    // Deduct credits and track usage
+    await Promise.all([
+      db.subscription.update({
+        where: { userId },
+        data: { creditsRemaining: { decrement: 20 } },
+      }),
+      db.usage.create({
+        data: {
+          userId,
+          type: 'ai_auto_build',
+          amount: 20,
+          metadata: {
+            websiteType,
+            stylePreset,
+            tokensUsed: response.usage?.total_tokens || 0,
+          },
+        },
+      }),
+    ]);
+
     return NextResponse.json({
       success: true,
       website: generatedWebsite,
@@ -104,9 +161,8 @@ Return valid JSON only, no markdown.`;
     });
   } catch (error) {
     console.error('AI Auto-Builder error:', error);
-    return NextResponse.json(
-      { error: 'Failed to generate website' },
-      { status: 500 }
-    );
+    const status = getErrorStatus(error);
+    const errorResponse = handleApiError(error);
+    return NextResponse.json(errorResponse, { status });
   }
 }

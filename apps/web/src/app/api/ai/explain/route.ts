@@ -1,5 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import OpenAI from 'openai';
+import { db } from '@/lib/db';
+import { getSession, requireAuth } from '@/lib/auth';
+import { checkRateLimit, getRateLimitIdentifier } from '@/lib/rate-limit';
+import { aiExplainSchema } from '@/lib/validation';
+import { ValidationError, handleApiError, getErrorStatus } from '@/lib/errors';
 
 function getOpenAIClient() {
     if (!process.env.OPENAI_API_KEY) {
@@ -20,7 +25,25 @@ Guidelines:
 
 export async function POST(req: NextRequest) {
     try {
-        const { code } = await req.json();
+        // Require authentication
+        const session = await getSession();
+        await requireAuth(session);
+
+        const userId = session!.user.id;
+
+        // Check rate limit
+        const identifier = getRateLimitIdentifier(req, userId);
+        await checkRateLimit(identifier, 'ai');
+
+        // Validate request body
+        const body = await req.json();
+        const validationResult = aiExplainSchema.safeParse(body);
+
+        if (!validationResult.success) {
+            throw new ValidationError('Validation failed', validationResult.error.flatten());
+        }
+
+        const { code } = validationResult.data;
 
         const openai = getOpenAIClient();
         const response = await openai.chat.completions.create({
@@ -37,12 +60,20 @@ export async function POST(req: NextRequest) {
             throw new Error('No response from AI');
         }
 
+        // Track usage (free feature, no credit deduction)
+        await db.usage.create({
+            data: {
+                userId,
+                type: 'ai_explain',
+                amount: 1,
+            },
+        });
+
         return NextResponse.json({ explanation });
     } catch (error) {
         console.error('Code Explanation Error:', error);
-        return NextResponse.json(
-            { error: 'Failed to explain code' },
-            { status: 500 }
-        );
+        const status = getErrorStatus(error);
+        const errorResponse = handleApiError(error);
+        return NextResponse.json(errorResponse, { status });
     }
 }
