@@ -1,6 +1,7 @@
 import { NextAuthConfig } from 'next-auth';
 import type { Session, User } from 'next-auth';
 import type { JWT } from 'next-auth/jwt';
+import type { Adapter } from 'next-auth/adapters';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import GoogleProvider from 'next-auth/providers/google';
 import GitHubProvider from 'next-auth/providers/github';
@@ -11,7 +12,7 @@ import { UnauthorizedError } from './errors';
 import NextAuth from 'next-auth';
 
 export const authOptions: NextAuthConfig = {
-    adapter: PrismaAdapter(db) as any, // Type cast to avoid version conflicts with @auth/core
+    adapter: PrismaAdapter(db) as Adapter, // Type cast to Adapter to resolve version conflicts
     session: {
         strategy: 'jwt',
         maxAge: 30 * 24 * 60 * 60, // 30 days
@@ -86,8 +87,8 @@ export const authOptions: NextAuthConfig = {
         }) {
             if (user) {
                 token.id = user.id as string;
-                token.role = (user as any).role;
-                token.emailVerified = (user as any).emailVerified;
+                token.role = user.role;
+                token.emailVerified = user.emailVerified;
             }
 
             // Update token if session is updated
