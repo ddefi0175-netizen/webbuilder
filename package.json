@@ -5,7 +5,7 @@
     "description": "AI-powered web builder with visual editing and code generation",
     "repository": {
         "type": "git",
-        "url": "https://github.com/your-org/webbuilder.git"
+        "url": "https://github.com/ddefi0175-netizen/webbuilder.git"
     },
     "keywords": [
         "web-builder",
@@ -15,7 +15,7 @@
         "visual-editor"
     ],
     "author": "WebBuilder Team",
-    "license": "MIT",
+    "license": "GPL-3.0",
     "workspaces": [
         "apps/*",
         "packages/*"
