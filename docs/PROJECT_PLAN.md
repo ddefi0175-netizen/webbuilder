@@ -8,7 +8,7 @@ A modern, AI-powered web builder that enables users to create websites through n
 
 ## 🏗️ Architecture Overview
 
-```
+```text
 ┌─────────────────────────────────────────────────────────────────┐
 │                        Frontend (React/Next.js)                  │
 ├─────────────────────────────────────────────────────────────────┤
@@ -91,28 +91,28 @@ A modern, AI-powered web builder that enables users to create websites through n
 interface AICapabilities {
   // Text-to-Component
   generateComponent(prompt: string): Component;
-  
+
   // Layout Intelligence
   suggestLayout(content: Content[]): LayoutSuggestion;
-  
+
   // Style Assistant
   generateStyles(description: string): CSSStyles;
-  
+
   // Code Completion
   completeCode(context: CodeContext): CodeSuggestion;
-  
+
   // Content Generation
   generateContent(type: ContentType, context: string): Content;
-  
+
   // Image Generation (via DALL-E/Stable Diffusion)
   generateImage(prompt: string): ImageAsset;
-  
+
   // Code Explanation
   explainCode(code: string): Explanation;
-  
+
   // Bug Detection
   detectIssues(code: string): Issue[];
-  
+
   // Optimization
   optimizeCode(code: string): OptimizedCode;
 }
@@ -195,7 +195,7 @@ interface AICapabilities {
 ### Frontend
 
 | Category | Technology | Purpose |
-|----------|------------|---------|
+| -------- | ---------- | ------- |
 | Framework | Next.js 14+ | React framework with SSR |
 | Language | TypeScript | Type safety |
 | Styling | Tailwind CSS | Utility-first CSS |
@@ -208,7 +208,7 @@ interface AICapabilities {
 ### Backend
 
 | Category | Technology | Purpose |
-|----------|------------|---------|
+| -------- | ---------- | ------- |
 | Runtime | Node.js 20+ | Server runtime |
 | Framework | Express/Fastify | API server |
 | Database | PostgreSQL | Primary database |
@@ -219,7 +219,7 @@ interface AICapabilities {
 ### AI Services
 
 | Category | Technology | Purpose |
-|----------|------------|---------|
+| -------- | ---------- | ------- |
 | LLM | OpenAI GPT-4 | Code generation |
 | Embeddings | OpenAI Ada | Semantic search |
 | Image Gen | DALL-E 3 / Stable Diffusion | Image generation |
@@ -228,7 +228,7 @@ interface AICapabilities {
 ### DevOps
 
 | Category | Technology | Purpose |
-|----------|------------|---------|
+| -------- | ---------- | ------- |
 | Container | Docker | Containerization |
 | Orchestration | Kubernetes | Container orchestration |
 | CI/CD | GitHub Actions | Automation |
@@ -239,7 +239,7 @@ interface AICapabilities {
 
 ## 📁 Project Structure
 
-```
+```text
 webbuilder/
 ├── apps/
 │   ├── web/                      # Next.js frontend
@@ -290,24 +290,24 @@ interface EditorState {
     selectedIds: string[];
     hoveredId: string | null;
   };
-  
+
   // Components tree
   components: Map<string, Component>;
   rootId: string;
-  
+
   // History
   history: {
     past: EditorSnapshot[];
     future: EditorSnapshot[];
   };
-  
+
   // AI
   ai: {
     isProcessing: boolean;
     conversation: Message[];
     suggestions: Suggestion[];
   };
-  
+
   // Actions
   addComponent: (component: Component, parentId: string) => void;
   updateComponent: (id: string, updates: Partial<Component>) => void;
@@ -329,11 +329,11 @@ interface Component {
   styles: CSSProperties;
   children: string[];  // Child component IDs
   parentId: string | null;
-  
+
   // AI metadata
   aiGenerated: boolean;
   aiPrompt?: string;
-  
+
   // Responsive styles
   responsiveStyles: {
     desktop: CSSProperties;
@@ -349,20 +349,20 @@ interface Component {
 interface AIService {
   // Chat
   chat(messages: Message[], context: EditorContext): AsyncIterable<string>;
-  
+
   // Code Generation
   generateCode(prompt: string, language: Language): Promise<string>;
-  
+
   // Component Generation
   generateComponent(description: string): Promise<Component>;
-  
+
   // Style Generation
   generateStyles(description: string, target: Component): Promise<CSSProperties>;
-  
+
   // Content
   generateText(prompt: string, type: TextType): Promise<string>;
   generateImage(prompt: string, size: ImageSize): Promise<string>;
-  
+
   // Analysis
   analyzeCode(code: string): Promise<CodeAnalysis>;
   suggestImprovements(component: Component): Promise<Suggestion[]>;
@@ -374,7 +374,7 @@ interface AIService {
 ## 📅 Development Timeline
 
 | Phase | Duration | Milestone |
-|-------|----------|-----------|
+| ----- | -------- | --------- |
 | Phase 1 | Weeks 1-4 | Core editor with drag-and-drop |
 | Phase 2 | Weeks 5-8 | AI chat and code generation |
 | Phase 3 | Weeks 9-12 | Code editor with AI assistance |
@@ -410,7 +410,7 @@ interface AIService {
 ## 📊 Success Metrics
 
 | Metric | Target |
-|--------|--------|
+| ------ | ------ |
 | Time to first page | < 5 minutes |
 | AI response time | < 3 seconds |
 | Page load time | < 2 seconds |
@@ -426,4 +426,6 @@ See [CONTRIBUTING.md](./CONTRIBUTING.md) for contribution guidelines.
 
 ---
 
-*Last Updated: January 2, 2026*
+### Last Updated
+
+January 2, 2026

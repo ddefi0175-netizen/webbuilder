@@ -204,6 +204,7 @@ describe('Editor Store', () => {
 
             expect(useEditorStore.getState().toolsSidebarOpen).toBe(false);
 
+            const { toggleToolsSidebar } = useEditorStore.getState();
             toggleToolsSidebar();
             expect(useEditorStore.getState().toolsSidebarOpen).toBe(true);
         });

@@ -13,7 +13,7 @@ The AI Coding System is a multi-layered architecture that enables:
 
 ## Architecture Diagram
 
-```
+```text
 ┌─────────────────────────────────────────────────────────────────────────┐
 │                           User Interface Layer                           │
 ├─────────────────────────────────────────────────────────────────────────┤
@@ -108,7 +108,7 @@ interface AIContext {
     cursorPosition: Position;
     visibleCode: string;
   };
-  
+
   // Project context
   project: {
     name: string;
@@ -117,14 +117,14 @@ interface AIContext {
     styles: StyleSummary[];
     assets: AssetSummary[];
   };
-  
+
   // Conversation context
   conversation: {
     messages: Message[];
     recentActions: Action[];
     userPreferences: Preferences;
   };
-  
+
   // Code context
   code: {
     recentEdits: Edit[];
@@ -146,21 +146,21 @@ interface CodeGenerator {
     description: string,
     context: AIContext
   ): Promise<ComponentOutput>;
-  
+
   // Generate code snippet
   generateSnippet(
     prompt: string,
     language: Language,
     context: AIContext
   ): Promise<CodeSnippet>;
-  
+
   // Complete partial code
   completeCode(
     partialCode: string,
     cursorPosition: Position,
     context: AIContext
   ): Promise<Completion[]>;
-  
+
   // Transform existing code
   transformCode(
     code: string,
@@ -229,18 +229,18 @@ interface StyleAdvisor {
     description: string,
     targetElement: Component
   ): Promise<CSSStyles>;
-  
+
   // Suggest style improvements
   suggestImprovements(
     component: Component
   ): Promise<StyleSuggestion[]>;
-  
+
   // Match existing design system
   matchDesignSystem(
     component: Component,
     designSystem: DesignSystem
   ): Promise<CSSStyles>;
-  
+
   // Generate responsive styles
   generateResponsiveStyles(
     baseStyles: CSSStyles,
@@ -257,13 +257,13 @@ Intelligent error handling:
 interface ErrorDetector {
   // Analyze code for issues
   analyzeCode(code: string): Promise<Issue[]>;
-  
+
   // Suggest fixes
   suggestFix(issue: Issue, context: AIContext): Promise<Fix>;
-  
+
   // Auto-fix common issues
   autoFix(code: string, issues: Issue[]): Promise<string>;
-  
+
   // Explain error
   explainError(error: Error, context: AIContext): Promise<string>;
 }
@@ -289,7 +289,7 @@ interface Fix {
 
 ### Component Generation Workflow
 
-```
+```text
 User Request
      │
      ▼
@@ -333,7 +333,7 @@ User Request
 
 ### Code Completion Workflow
 
-```
+```text
 Typing in Editor
        │
        ▼
@@ -386,7 +386,7 @@ interface ConversationMemory {
     recentActions: Action[];
     activeContext: AIContext;
   };
-  
+
   // Long-term (persisted)
   longTerm: {
     userPreferences: Preferences;
@@ -394,7 +394,7 @@ interface ConversationMemory {
     savedSnippets: Snippet[];
     projectKnowledge: Knowledge[];
   };
-  
+
   // Vector store for semantic search
   embeddings: {
     conversations: VectorEntry[];
@@ -414,13 +414,13 @@ async function getRelevantContext(
     memory.embeddings.conversations,
     { topK: 5 }
   );
-  
+
   const relevantCode = await vectorSearch(
     query,
     memory.embeddings.codeSnippets,
     { topK: 3 }
   );
-  
+
   return {
     conversations: relevantConversations,
     code: relevantCode,
@@ -445,11 +445,11 @@ async function validateGeneratedCode(
     performanceValidator,  // No obvious issues
     styleValidator,       // Follows conventions
   ];
-  
+
   const results = await Promise.all(
     validators.map(v => v.validate(code))
   );
-  
+
   return {
     isValid: results.every(r => r.passed),
     issues: results.flatMap(r => r.issues),
@@ -492,14 +492,14 @@ const cacheConfig = {
     maxSize: 1000,
     keyStrategy: 'prompt-hash'
   },
-  
+
   // Cache embeddings
   embeddings: {
     ttl: '7d',
     maxSize: 10000,
     keyStrategy: 'content-hash'
   },
-  
+
   // Cache completions
   completions: {
     ttl: '1h',
@@ -523,7 +523,7 @@ async function* streamResponse(
     messages: buildMessages(prompt, context),
     stream: true
   });
-  
+
   for await (const chunk of stream) {
     const content = chunk.choices[0]?.delta?.content;
     if (content) {
@@ -563,7 +563,7 @@ async function handleAIComponentRequest(description: string) {
     designSystem: currentDesignSystem,
     existingComponents: componentTree
   });
-  
+
   if (component) {
     addComponentToCanvas(component);
     showSuccessNotification('Component added!');

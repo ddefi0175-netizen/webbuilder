@@ -17,7 +17,7 @@ describe('AI Store', () => {
     describe('Messages', () => {
         it('should add a user message', () => {
             const { addMessage } = useAIStore.getState();
-            
+
             addMessage('user', 'Create a hero section');
 
             const state = useAIStore.getState();
@@ -28,7 +28,7 @@ describe('AI Store', () => {
 
         it('should add an assistant message', () => {
             const { addMessage } = useAIStore.getState();
-            
+
             addMessage('assistant', 'I have created a hero section for you.');
 
             const state = useAIStore.getState();
@@ -38,7 +38,7 @@ describe('AI Store', () => {
 
         it('should maintain message order', () => {
             const { addMessage } = useAIStore.getState();
-            
+
             addMessage('user', 'First message');
             addMessage('assistant', 'Response');
             addMessage('user', 'Second message');
@@ -52,10 +52,10 @@ describe('AI Store', () => {
 
         it('should clear all messages', () => {
             const { addMessage, clearMessages } = useAIStore.getState();
-            
+
             addMessage('user', 'Test message');
             addMessage('assistant', 'Response');
-            
+
             clearMessages();
 
             const state = useAIStore.getState();
@@ -66,7 +66,7 @@ describe('AI Store', () => {
     describe('Loading State', () => {
         it('should set loading state', () => {
             const { setLoading } = useAIStore.getState();
-            
+
             setLoading(true);
             expect(useAIStore.getState().isLoading).toBe(true);
 
@@ -78,7 +78,7 @@ describe('AI Store', () => {
     describe('Error Handling', () => {
         it('should set error message', () => {
             const { setError } = useAIStore.getState();
-            
+
             setError('API rate limit exceeded');
 
             const state = useAIStore.getState();
@@ -87,7 +87,7 @@ describe('AI Store', () => {
 
         it('should clear error', () => {
             const { setError } = useAIStore.getState();
-            
+
             setError('Some error');
             setError(null);
 
@@ -99,7 +99,7 @@ describe('AI Store', () => {
     describe('Streaming', () => {
         it('should start streaming', () => {
             const { startStreaming } = useAIStore.getState();
-            
+
             startStreaming();
 
             const state = useAIStore.getState();
@@ -109,7 +109,7 @@ describe('AI Store', () => {
 
         it('should append streaming content', () => {
             const { startStreaming, appendStreamContent } = useAIStore.getState();
-            
+
             startStreaming();
             appendStreamContent('Hello');
             appendStreamContent(' World');
@@ -120,7 +120,7 @@ describe('AI Store', () => {
 
         it('should finish streaming', () => {
             const { startStreaming, finishStreaming } = useAIStore.getState();
-            
+
             startStreaming();
             finishStreaming();
 
@@ -132,9 +132,9 @@ describe('AI Store', () => {
     describe('Suggestions', () => {
         it('should set suggestions', () => {
             const { setSuggestions } = useAIStore.getState();
-            
+
             const suggestions = [
-                { id: '1', type: 'component' as const, title: 'Add Button', description: 'Add a button' },
+                { id: '1', type: 'component' as const, title: 'Add Button', description: 'Add a button', action: () => {} },
             ];
             setSuggestions(suggestions);
 
@@ -144,9 +144,12 @@ describe('AI Store', () => {
 
         it('should clear suggestions', () => {
             const { setSuggestions, clearSuggestions } = useAIStore.getState();
-            
-            setSuggestions([{ id: '1', type: 'component' as const, title: 'Test', description: 'Test' }]);
+
+            setSuggestions([{ id: '1', type: 'component' as const, title: 'Test', description: 'Test', action: () => {} }]);
             clearSuggestions();
 
             const state = useAIStore.getState();
             expect(state.suggestions.length).toBe(0);
+        });
+    });
+});
