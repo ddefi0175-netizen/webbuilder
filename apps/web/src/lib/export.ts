@@ -333,23 +333,27 @@ function componentToVue(
             return `${indent}<div class="${className}">\n${getChildrenTemplate()}\n${indent}</div>`;
 
         case 'text':
-            return `${indent}<p class="${className}">{{ '${component.props.content || ''}' }}</p>`;
+            const textContent = component.props.content || '';
+            return `${indent}<p class="${className}">${textContent}</p>`;
 
         case 'heading':
             const tag = component.props.level || 'h1';
-            return `${indent}<${tag} class="${className}">{{ '${component.props.content || ''}' }}</${tag}>`;
+            const headingContent = component.props.content || '';
+            return `${indent}<${tag} class="${className}">${headingContent}</${tag}>`;
 
         case 'button':
-            return `${indent}<button class="${className}">{{ '${component.props.text || 'Button'}' }}</button>`;
+            const buttonText = component.props.text || 'Button';
+            return `${indent}<button class="${className}">${buttonText}</button>`;
 
         case 'image':
-            return `${indent}<img class="${className}" :src="'${component.props.src || ''}'" :alt="'${component.props.alt || ''}'" />`;
+            return `${indent}<img class="${className}" src="${component.props.src || ''}" alt="${component.props.alt || ''}" />`;
 
         case 'link':
-            return `${indent}<a class="${className}" :href="'${component.props.href || '#'}">{{ '${component.props.text || 'Link'}' }}</a>`;
+            const linkText = component.props.text || 'Link';
+            return `${indent}<a class="${className}" href="${component.props.href || '#'}">${linkText}</a>`;
 
         case 'input':
-            return `${indent}<input class="${className}" type="${component.props.type || 'text'}" :placeholder="'${component.props.placeholder || ''}'" />`;
+            return `${indent}<input class="${className}" type="${component.props.type || 'text'}" placeholder="${component.props.placeholder || ''}" />`;
 
         case 'section':
             return `${indent}<section class="${className}">\n${getChildrenTemplate()}\n${indent}</section>`;
@@ -371,13 +375,14 @@ function componentToVue(
             return `${indent}<${listTag} class="${className}">\n${getChildrenTemplate()}\n${indent}</${listTag}>`;
 
         case 'list-item':
-            return `${indent}<li class="${className}">{{ '${component.props.content || ''}' }}</li>`;
+            const listItemContent = component.props.content || '';
+            return `${indent}<li class="${className}">${listItemContent}</li>`;
 
         case 'icon':
             return `${indent}<span class="${className} icon icon-${component.props.name || 'default'}"></span>`;
 
         case 'video':
-            return `${indent}<video class="${className}" :src="'${component.props.src || ''}'" ${component.props.controls ? 'controls' : ''}></video>`;
+            return `${indent}<video class="${className}" src="${component.props.src || ''}" ${component.props.controls ? 'controls' : ''}></video>`;
 
         case 'divider':
             return `${indent}<hr class="${className}" />`;
