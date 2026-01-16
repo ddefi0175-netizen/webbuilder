@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
 import OpenAI from 'openai';
 import { db } from '@/lib/db';
-import { authOptions, requireAuth } from '@/lib/auth';
+import { getSession, requireAuth } from '@/lib/auth';
 import { checkRateLimit, getRateLimitIdentifier } from '@/lib/rate-limit';
 import { aiGenerateStylesSchema } from '@/lib/validation';
 import { ValidationError, handleApiError, getErrorStatus } from '@/lib/errors';
@@ -31,7 +30,7 @@ Only return valid JSON, no markdown or explanation.`;
 export async function POST(req: NextRequest) {
     try {
         // Require authentication
-        const session = await getServerSession(authOptions);
+        const session = await getSession();
         await requireAuth(session);
 
         const userId = session!.user.id;

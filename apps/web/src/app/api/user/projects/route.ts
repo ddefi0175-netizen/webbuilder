@@ -1,14 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
 import { db } from '@/lib/db';
-import { authOptions, requireAuth } from '@/lib/auth';
+import { getSession, requireAuth } from '@/lib/auth';
 import { createProjectSchema } from '@/lib/validation';
 import { ValidationError, handleApiError, getErrorStatus } from '@/lib/errors';
 
 // GET - List user's projects
 export async function GET(req: NextRequest) {
     try {
-        const session = await getServerSession(authOptions);
+        const session = await getSession();
         await requireAuth(session);
 
         const { searchParams } = new URL(req.url);
@@ -59,7 +58,7 @@ export async function GET(req: NextRequest) {
 // POST - Create new project
 export async function POST(req: NextRequest) {
     try {
-        const session = await getServerSession(authOptions);
+        const session = await getSession();
         await requireAuth(session);
 
         const body = await req.json();

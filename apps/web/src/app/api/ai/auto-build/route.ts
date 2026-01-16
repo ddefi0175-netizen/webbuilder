@@ -1,9 +1,8 @@
 // AI Auto-Builder API
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
 import OpenAI from 'openai';
 import { db } from '@/lib/db';
-import { authOptions, requireAuth } from '@/lib/auth';
+import { getSession, requireAuth } from '@/lib/auth';
 import { checkRateLimit, getRateLimitIdentifier } from '@/lib/rate-limit';
 import { aiAutoBuildSchema } from '@/lib/validation';
 import { ValidationError, handleApiError, getErrorStatus } from '@/lib/errors';
@@ -14,11 +13,13 @@ function getOpenAIClient() {
   }
   return new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 }
+  return new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+}
 
 export async function POST(request: NextRequest) {
   try {
     // Require authentication
-    const session = await getServerSession(authOptions);
+    const session = await getSession();
     await requireAuth(session);
 
     const userId = session!.user.id;

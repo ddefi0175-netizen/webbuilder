@@ -1,5 +1,6 @@
-import { NextAuthOptions, Session, User } from 'next-auth';
-import { JWT } from 'next-auth/jwt';
+import { NextAuthConfig } from 'next-auth';
+import type { Session, User } from 'next-auth';
+import type { JWT } from 'next-auth/jwt';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import GoogleProvider from 'next-auth/providers/google';
 import GitHubProvider from 'next-auth/providers/github';
@@ -7,9 +8,10 @@ import { PrismaAdapter } from '@auth/prisma-adapter';
 import { db } from './db';
 import bcrypt from 'bcrypt';
 import { UnauthorizedError } from './errors';
+import NextAuth from 'next-auth';
 
-export const authOptions: NextAuthOptions = {
-    adapter: PrismaAdapter(db) as any,
+export const authOptions: NextAuthConfig = {
+    adapter: PrismaAdapter(db),
     session: {
         strategy: 'jwt',
         maxAge: 30 * 24 * 60 * 60, // 30 days
@@ -72,7 +74,13 @@ export const authOptions: NextAuthOptions = {
         }),
     ],
     callbacks: {
-        async jwt({ token, user, account, trigger, session }) {
+        async jwt({ token, user, account, trigger, session }: {
+            token: JWT;
+            user?: User;
+            account?: any;
+            trigger?: 'signIn' | 'signUp' | 'update';
+            session?: any;
+        }) {
             if (user) {
                 token.id = user.id;
                 token.role = user.role;
@@ -94,7 +102,7 @@ export const authOptions: NextAuthOptions = {
             }
             return session;
         },
-        async signIn({ user, account, profile }) {
+        async signIn({ user, account, profile }: { user: User; account: any; profile?: any }) {
             // For OAuth providers, ensure email is verified
             if (account?.provider === 'google' || account?.provider === 'github') {
                 if (user.email) {
@@ -108,7 +116,7 @@ export const authOptions: NextAuthOptions = {
         },
     },
     events: {
-        async createUser({ user }) {
+        async createUser({ user }: { user: User }) {
             // Create default subscription for new users
             await db.subscription.create({
                 data: {
@@ -124,13 +132,14 @@ export const authOptions: NextAuthOptions = {
     debug: process.env.NODE_ENV === 'development',
 };
 
+// Export the auth function for use in server components and API routes
+export const { auth } = NextAuth(authOptions);
+
 /**
- * Get current user from session
+ * Get current user session (for use in API routes)
  */
-export async function getCurrentUser(req: Request): Promise<User | null> {
-    // This is a placeholder - actual implementation depends on how we access session in App Router
-    // We'll need to use getServerSession from next-auth in the actual API routes
-    return null;
+export async function getSession(): Promise<Session | null> {
+    return await auth();
 }
 
 /**

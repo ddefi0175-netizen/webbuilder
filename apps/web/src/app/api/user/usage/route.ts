@@ -1,13 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
 import { db } from '@/lib/db';
-import { authOptions, requireAuth } from '@/lib/auth';
+import { getSession, requireAuth } from '@/lib/auth';
 import { handleApiError, getErrorStatus } from '@/lib/errors';
 
 // GET - Get user usage statistics
 export async function GET(req: NextRequest) {
     try {
-        const session = await getServerSession(authOptions);
+        const session = await getSession();
         await requireAuth(session);
 
         const userId = session!.user.id;
@@ -35,7 +34,7 @@ export async function GET(req: NextRequest) {
         });
 
         // Aggregate usage by type
-        const usageByType = monthlyUsage.reduce((acc: Record<string, number>, usage) => {
+        const usageByType = monthlyUsage.reduce((acc: Record<string, number>, usage: any) => {
             acc[usage.type] = (acc[usage.type] || 0) + usage.amount;
             return acc;
         }, {});

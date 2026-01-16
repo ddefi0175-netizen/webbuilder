@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
 import OpenAI from 'openai';
 import { db } from '@/lib/db';
-import { authOptions, requireAuth } from '@/lib/auth';
+import { getSession, requireAuth } from '@/lib/auth';
+import { getSession } from '@/lib/auth';
 import { checkRateLimit, getRateLimitIdentifier, getRateLimitType } from '@/lib/rate-limit';
 import { aiChatSchema } from '@/lib/validation';
 import { ValidationError, handleApiError, getErrorStatus, UnauthorizedError } from '@/lib/errors';
@@ -33,7 +33,7 @@ Be concise but helpful. Format code snippets in markdown code blocks with the ap
 export async function POST(req: NextRequest) {
     try {
         // Require authentication
-        const session = await getServerSession(authOptions);
+        const session = await getSession();
         await requireAuth(session);
 
         const userId = session!.user.id;

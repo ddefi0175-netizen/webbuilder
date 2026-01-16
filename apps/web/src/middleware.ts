@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { getToken } from 'next-auth/jwt';
+import { auth } from '@/lib/auth';
 
 // Routes that require authentication
 const protectedRoutes = ['/dashboard', '/ai-builder', '/credits', '/templates'];
@@ -11,13 +11,9 @@ const authRoutes = ['/auth/login', '/auth/register'];
 export async function middleware(request: NextRequest) {
     const { pathname } = request.nextUrl;
 
-    // Get the token from the request
-    const token = await getToken({
-        req: request,
-        secret: process.env.NEXTAUTH_SECRET,
-    });
-
-    const isAuthenticated = !!token;
+    // Get the session
+    const session = await auth();
+    const isAuthenticated = !!session;
 
     // Check if the current route is protected
     const isProtectedRoute = protectedRoutes.some((route) => pathname.startsWith(route));

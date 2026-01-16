@@ -1,14 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
 import { db } from '@/lib/db';
-import { authOptions, requireAuth } from '@/lib/auth';
+import { getSession, requireAuth } from '@/lib/auth';
 import { updateProjectSchema } from '@/lib/validation';
 import { ValidationError, NotFoundError, ForbiddenError, handleApiError, getErrorStatus } from '@/lib/errors';
 
 // GET - Get specific project
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
     try {
-        const session = await getServerSession(authOptions);
+        const session = await getSession();
         await requireAuth(session);
 
         const project = await db.project.findUnique({
@@ -38,7 +37,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 // PATCH - Update project
 export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
     try {
-        const session = await getServerSession(authOptions);
+        const session = await getSession();
         await requireAuth(session);
 
         const body = await req.json();
@@ -82,7 +81,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
 // DELETE - Delete project
 export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
     try {
-        const session = await getServerSession(authOptions);
+        const session = await getSession();
         await requireAuth(session);
 
         // Check if project exists and user owns it
