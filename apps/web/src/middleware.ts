@@ -67,4 +67,6 @@ export const config = {
          */
         '/((?!_next/static|_next/image|favicon.ico|.*\\..*|public).*)',
     ],
+    // Use Node.js runtime to support bcrypt and other Node.js APIs
+    runtime: 'nodejs',
 };

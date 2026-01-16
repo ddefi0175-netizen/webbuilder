@@ -16,11 +16,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - TypeScript: Replaced `any` types with `unknown` in ai-core package for better type safety
 - License: Corrected README.md to reflect GPL-3.0 license (was incorrectly stated as MIT)
 - Build: Fixed Prisma client generation requirement for production builds
+- **Edge Runtime Warning**: Configured middleware to use Node.js runtime instead of Edge Runtime to support bcrypt authentication
+- **Build Warnings**: Disabled intentional ESLint warnings for img tags and icon components to achieve clean production build
 
 ### Security
 - Passed CodeQL security analysis with zero vulnerabilities
 - All dependencies audited
 - Type safety improvements in AI core service layer
+- Proper runtime configuration for authentication middleware
 
 ---
 
