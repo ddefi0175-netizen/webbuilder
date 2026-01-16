@@ -82,7 +82,7 @@ export async function POST(req: NextRequest) {
                 amount: 1,
                 metadata: { messageCount: messages.length },
             },
-        }).catch(err => console.error('Failed to track usage:', err));
+        }).catch((err: unknown) => console.error('Failed to track usage:', err));
 
         // Create a streaming response
         const encoder = new TextEncoder();

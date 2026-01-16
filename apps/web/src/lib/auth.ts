@@ -11,7 +11,7 @@ import { UnauthorizedError } from './errors';
 import NextAuth from 'next-auth';
 
 export const authOptions: NextAuthConfig = {
-    adapter: PrismaAdapter(db),
+    adapter: PrismaAdapter(db) as any, // Type cast to avoid version conflicts with @auth/core
     session: {
         strategy: 'jwt',
         maxAge: 30 * 24 * 60 * 60, // 30 days
@@ -35,8 +35,11 @@ export const authOptions: NextAuthConfig = {
                     throw new Error('Email and password are required');
                 }
 
+                const email = String(credentials.email);
+                const password = String(credentials.password);
+
                 const user = await db.user.findUnique({
-                    where: { email: credentials.email },
+                    where: { email },
                     include: {
                         subscription: true,
                     },
@@ -46,7 +49,7 @@ export const authOptions: NextAuthConfig = {
                     throw new Error('Invalid email or password');
                 }
 
-                const isPasswordValid = await bcrypt.compare(credentials.password, user.password);
+                const isPasswordValid = await bcrypt.compare(password, user.password);
 
                 if (!isPasswordValid) {
                     throw new Error('Invalid email or password');
@@ -82,9 +85,9 @@ export const authOptions: NextAuthConfig = {
             session?: any;
         }) {
             if (user) {
-                token.id = user.id;
-                token.role = user.role;
-                token.emailVerified = user.emailVerified;
+                token.id = user.id as string;
+                token.role = (user as any).role;
+                token.emailVerified = (user as any).emailVerified;
             }
 
             // Update token if session is updated
@@ -102,7 +105,7 @@ export const authOptions: NextAuthConfig = {
             }
             return session;
         },
-        async signIn({ user, account, profile }: { user: User; account: any; profile?: any }) {
+        async signIn({ user, account, profile }) {
             // For OAuth providers, ensure email is verified
             if (account?.provider === 'google' || account?.provider === 'github') {
                 if (user.email) {
@@ -118,6 +121,8 @@ export const authOptions: NextAuthConfig = {
     events: {
         async createUser({ user }: { user: User }) {
             // Create default subscription for new users
+            if (!user.id) return;
+            
             await db.subscription.create({
                 data: {
                     userId: user.id,
