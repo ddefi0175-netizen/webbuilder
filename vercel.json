@@ -63,11 +63,5 @@
             "destination": "/learn",
             "permanent": true
         }
-    ],
-    "env": {
-        "NEXT_PUBLIC_APP_URL": "@next_public_app_url",
-        "OPENAI_API_KEY": "@openai_api_key",
-        "NEXTAUTH_SECRET": "@nextauth_secret",
-        "NEXTAUTH_URL": "@nextauth_url"
-    }
+    ]
 }

@@ -149,9 +149,19 @@ The WebBuilder app requires certain environment variables to function properly.
    OPENAI_API_KEY
    Value: sk-... (your OpenAI API key)
    Environment: Production, Preview, Development
+   
+   NEXTAUTH_SECRET
+   Value: (generate a secure random string)
+   Environment: Production, Preview, Development
+   
+   NEXTAUTH_URL
+   Value: https://your-project.vercel.app (same as NEXT_PUBLIC_APP_URL)
+   Environment: Production
    ```
 
-   Other variables from `.env.example`:
+   **Note:** These environment variables must be configured in Vercel's dashboard. They are not stored in the repository for security reasons.
+
+   Other optional variables from `.env.example`:
    - `NEXT_PUBLIC_API_URL` - Your API endpoint
    - `STRIPE_SECRET_KEY` - For payment processing (if using Stripe)
    - `STRIPE_WEBHOOK_SECRET` - For Stripe webhooks
