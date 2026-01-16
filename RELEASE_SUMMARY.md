@@ -18,23 +18,29 @@ All issues have been identified, documented, and resolved. The WebBuilder v1.0.0
 
 ### Critical Fixes for v1.0.0 ✅
 
-1. **TypeScript Type Safety (ai-core)**
+1. **Vercel Deployment Build Failure**
+   - **Issue**: API routes using `getSession()` caused "Dynamic server usage" error during static generation
+   - **Fix**: Added `export const dynamic = 'force-dynamic'` to 9 API routes
+   - **Files**: All user/* and ai/* API routes
+   - **Status**: ✅ Fixed
+
+2. **TypeScript Type Safety (ai-core)**
    - **Issue**: Using `any` types which reduce type safety
    - **Fix**: Replaced all `any` types with `unknown` in ai-core package
    - **Files**: types.ts, ai-service.ts
    - **Status**: ✅ Fixed
 
-2. **License Inconsistency**
+3. **License Inconsistency**
    - **Issue**: README.md incorrectly stated MIT license when project uses GPL-3.0
    - **Fix**: Corrected README.md to reflect GPL-3.0 license
    - **Status**: ✅ Fixed
 
-3. **Build Error - Prisma Client**
+4. **Build Error - Prisma Client**
    - **Issue**: Prisma client not generated, causing build failures
    - **Fix**: Generated Prisma client before build
    - **Status**: ✅ Fixed
 
-4. **Version Bump**
+5. **Version Bump**
    - **Issue**: Packages at v0.1.0 for initial release
    - **Fix**: Bumped all packages to v1.0.0 for stable release
    - **Status**: ✅ Complete

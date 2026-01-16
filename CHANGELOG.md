@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - TypeScript: Replaced `any` types with `unknown` in ai-core package for better type safety
 - License: Corrected README.md to reflect GPL-3.0 license (was incorrectly stated as MIT)
 - Build: Fixed Prisma client generation requirement for production builds
+- **Vercel Deployment**: Fixed "Dynamic server usage" build error by adding `export const dynamic = 'force-dynamic'` to 9 API routes that use NextAuth's `getSession()` function
 - **Edge Runtime Warning**: Configured middleware to use Node.js runtime instead of Edge Runtime to support bcrypt authentication
 - **Build Warnings**: Disabled intentional ESLint warnings for img tags and icon components to achieve clean production build
 
