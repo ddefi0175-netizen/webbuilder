@@ -1,5 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
 import OpenAI from 'openai';
+import { db } from '@/lib/db';
+import { authOptions, requireAuth } from '@/lib/auth';
+import { checkRateLimit, getRateLimitIdentifier } from '@/lib/rate-limit';
+import { aiGenerateStylesSchema } from '@/lib/validation';
+import { ValidationError, handleApiError, getErrorStatus } from '@/lib/errors';
 
 function getOpenAIClient() {
     if (!process.env.OPENAI_API_KEY) {
@@ -24,7 +30,38 @@ Only return valid JSON, no markdown or explanation.`;
 
 export async function POST(req: NextRequest) {
     try {
-        const { description, componentId } = await req.json();
+        // Require authentication
+        const session = await getServerSession(authOptions);
+        await requireAuth(session);
+
+        const userId = session!.user.id;
+
+        // Get user's subscription
+        const subscription = await db.subscription.findUnique({
+            where: { userId },
+        });
+
+        // Check if user has sufficient credits
+        if (!subscription || subscription.creditsRemaining < 2) {
+            return NextResponse.json(
+                { error: 'Insufficient credits. Please upgrade your plan.' },
+                { status: 402 }
+            );
+        }
+
+        // Check rate limit
+        const identifier = getRateLimitIdentifier(req, userId);
+        await checkRateLimit(identifier, 'ai');
+
+        // Validate request body
+        const body = await req.json();
+        const validationResult = aiGenerateStylesSchema.safeParse(body);
+
+        if (!validationResult.success) {
+            throw new ValidationError('Validation failed', validationResult.error.flatten());
+        }
+
+        const { description, componentId } = validationResult.data;
 
         const openai = getOpenAIClient();
         const response = await openai.chat.completions.create({
@@ -44,12 +81,27 @@ export async function POST(req: NextRequest) {
 
         const styles = JSON.parse(content);
 
+        // Deduct credits and track usage
+        await Promise.all([
+            db.subscription.update({
+                where: { userId },
+                data: { creditsRemaining: { decrement: 2 } },
+            }),
+            db.usage.create({
+                data: {
+                    userId,
+                    type: 'ai_generate_styles',
+                    amount: 2,
+                    metadata: { description: description.substring(0, 100) },
+                },
+            }),
+        ]);
+
         return NextResponse.json({ styles, componentId });
     } catch (error) {
         console.error('Style Generation Error:', error);
-        return NextResponse.json(
-            { error: 'Failed to generate styles' },
-            { status: 500 }
-        );
+        const status = getErrorStatus(error);
+        const errorResponse = handleApiError(error);
+        return NextResponse.json(errorResponse, { status });
     }
 }
