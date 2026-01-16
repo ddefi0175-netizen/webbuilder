@@ -152,7 +152,7 @@ export class AIService {
      * Suggest improvements for a component
      */
     async suggestImprovements(
-        component: { type: string; styles: Record<string, string>; props: Record<string, any> }
+        component: { type: string; styles: Record<string, string>; props: Record<string, unknown> }
     ): Promise<string[]> {
         const response = await this.openai.chat.completions.create({
             model: this.config.fastModel || 'gpt-3.5-turbo',

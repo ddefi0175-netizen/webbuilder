@@ -16,7 +16,7 @@ export interface AIContext {
         type: string;
         name: string;
         styles?: Record<string, string>;
-        props?: Record<string, any>;
+        props?: Record<string, unknown>;
     };
     components?: Array<{
         type: string;
@@ -33,7 +33,7 @@ export interface AIContext {
 export interface ComponentGenerationResult {
     type: string;
     name: string;
-    props: Record<string, any>;
+    props: Record<string, unknown>;
     styles: Record<string, string>;
     children: ComponentGenerationResult[];
 }
@@ -54,7 +54,7 @@ export interface Suggestion {
     description: string;
     action?: {
         type: 'updateStyle' | 'updateProp' | 'addComponent';
-        payload: any;
+        payload: unknown;
     };
 }
 
