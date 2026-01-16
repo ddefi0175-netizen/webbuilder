@@ -217,7 +217,7 @@ export default function HomePage() {
                                 Describe Your Website, Watch It Come to Life
                             </h2>
                             <p className="text-lg text-muted-foreground mb-6">
-                                Our advanced AI understands natural language. Simply tell it what you want – "a modern portfolio for a photographer with dark theme" – and watch as it creates a complete, customizable website in seconds.
+                                Our advanced AI understands natural language. Simply tell it what you want – &ldquo;a modern portfolio for a photographer with dark theme&rdquo; – and watch as it creates a complete, customizable website in seconds.
                             </p>
 
                             <ul className="space-y-3 mb-8">
@@ -250,7 +250,7 @@ export default function HomePage() {
                             <div className="space-y-4">
                                 <div className="bg-muted rounded-lg p-4">
                                     <p className="text-sm text-muted-foreground mb-2">You said:</p>
-                                    <p>"Create a modern landing page for a fitness app with pricing section"</p>
+                                    <p>&ldquo;Create a modern landing page for a fitness app with pricing section&rdquo;</p>
                                 </div>
                                 <div className="bg-primary/5 border border-primary/20 rounded-lg p-4">
                                     <p className="text-sm text-primary mb-2">AI is building:</p>
@@ -288,7 +288,7 @@ export default function HomePage() {
                                         <Star key={i} className="h-5 w-5 text-amber-400 fill-amber-400" />
                                     ))}
                                 </div>
-                                <p className="text-lg mb-4">"{testimonial.quote}"</p>
+                                <p className="text-lg mb-4">&ldquo;{testimonial.quote}&rdquo;</p>
                                 <div>
                                     <div className="font-semibold">{testimonial.author}</div>
                                     <div className="text-sm text-muted-foreground">{testimonial.role}</div>
@@ -306,7 +306,7 @@ export default function HomePage() {
                         Ready to Build Your Dream Website?
                     </h2>
                     <p className="text-xl text-white/80 mb-8 max-w-2xl mx-auto">
-                        Start for free, upgrade when you're ready. No credit card required.
+                        Start for free, upgrade when you&apos;re ready. No credit card required.
                     </p>
                     <div className="flex items-center justify-center gap-4">
                         <Link href="/auth/register">
