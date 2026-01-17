@@ -2,12 +2,25 @@ import { Ratelimit } from '@upstash/ratelimit';
 import { Redis } from '@upstash/redis';
 import { RateLimitError } from './errors';
 
+// Helper function to clean environment variable values (remove surrounding quotes if present)
+function cleanEnvValue(value: string | undefined): string | undefined {
+    if (!value) return value;
+    // Remove surrounding quotes (both single and double) that might be in the env var
+    // Keep removing quotes from both ends until there are no more
+    let cleaned = value.trim();
+    while ((cleaned.startsWith('"') && cleaned.endsWith('"')) || 
+           (cleaned.startsWith("'") && cleaned.endsWith("'"))) {
+        cleaned = cleaned.slice(1, -1);
+    }
+    return cleaned;
+}
+
 // Initialize Redis client (will be undefined if env vars are not set)
 const redis =
     process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN
         ? new Redis({
-              url: process.env.UPSTASH_REDIS_REST_URL,
-              token: process.env.UPSTASH_REDIS_REST_TOKEN,
+              url: cleanEnvValue(process.env.UPSTASH_REDIS_REST_URL)!,
+              token: cleanEnvValue(process.env.UPSTASH_REDIS_REST_TOKEN)!,
           })
         : null;
 
