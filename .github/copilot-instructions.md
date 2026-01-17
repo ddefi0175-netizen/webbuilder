@@ -156,3 +156,87 @@ export async function POST(req: Request) {
 - **Streaming**: AI responses stream - handle partial content in UI
 - **Root Protection**: Prevent deletion/modification of root component (id === 'root')
 - **Breakpoints**: Canvas has breakpoint state ('desktop' | 'tablet' | 'mobile') - consider responsive styles
+
+## Security & Privacy
+
+### Never Touch
+- **Secrets**: Never commit API keys, tokens, or credentials to source code
+- **Environment Files**: `.env.local`, `.env.production` stay local - never commit
+- **User Data**: Never log or expose user data in development
+- **Production Configs**: Never modify production deployment configs without review
+
+### Security Practices
+- Always validate user inputs in API routes
+- Use environment variables for sensitive configuration
+- Sanitize data before rendering to prevent XSS
+- Use HTTPS for all external API calls
+- Follow OWASP guidelines for web security
+
+## Package Management
+
+### Dependency Rules
+- **Package Manager**: Always use `pnpm` (not npm or yarn)
+- **Adding Dependencies**: Run `pnpm add <package>` in appropriate workspace
+- **Workspace Protocol**: Use `workspace:*` for internal package dependencies
+- **Version Pinning**: Pin major versions for production stability
+- **Security**: Check for known vulnerabilities before adding dependencies
+
+### Workspace Commands
+```bash
+# Install to specific workspace
+pnpm add <package> --filter web           # Frontend app
+pnpm add <package> --filter ai-core       # AI package
+
+# Install to all workspaces
+pnpm add -w <package>
+```
+
+## Troubleshooting
+
+### Common Issues
+
+**Build Errors**
+- Clear `.next` and `node_modules`: `pnpm clean && pnpm install`
+- Check Node version: `node -v` (must be 20+)
+- Verify pnpm version: `pnpm -v` (must be 8+)
+
+**Type Errors**
+- Regenerate types: `pnpm typecheck`
+- Check path aliases in `tsconfig.json`
+- Restart TypeScript server in IDE
+
+**Test Failures**
+- Update snapshots: `pnpm test -- -u`
+- Clear test cache: `pnpm test -- --clearCache`
+- Check for missing test dependencies
+
+**AI API Issues**
+- Verify `OPENAI_API_KEY` in `.env.local`
+- Check API rate limits and quotas
+- Review streaming implementation for partial responses
+
+**State Management Issues**
+- Check Immer middleware is properly configured
+- Verify store subscriptions are cleaned up
+- Use React DevTools to inspect Zustand state
+
+## Best Practices for AI Agents
+
+### Code Changes
+- Make minimal, focused changes
+- Preserve existing functionality unless explicitly asked to modify
+- Add tests for new features
+- Update documentation when changing public APIs
+- Follow existing code patterns and conventions
+
+### Testing Strategy
+- Run tests before making changes to understand baseline
+- Add tests for new functionality
+- Run affected tests after changes
+- Don't remove or modify unrelated tests
+
+### Review Process
+- Self-review changes before committing
+- Ensure all linting and type checks pass
+- Verify functionality in development environment
+- Consider edge cases and error handling
