@@ -429,17 +429,23 @@ Use different configurations per environment:
 
 For monorepo deployments (this project uses Turborepo):
 
-1. **Specify root directory in `vercel.json`**:
+1. **Place `vercel.json` in the app directory (`apps/web`)**:
+   - The `vercel.json` file must be located in `apps/web` directory, not at repository root
+   - This ensures Vercel can properly detect Next.js and dependencies
+   
+2. **Use relative path commands in `vercel.json`**:
    ```json
    {
-     "buildCommand": "cd ../.. && pnpm --filter @webbuilder/web build",
+     "buildCommand": "cd ../.. && pnpm --filter @webbuilder/web db:generate && pnpm --filter @webbuilder/ai-core build && pnpm --filter @webbuilder/web build",
      "installCommand": "cd ../.. && pnpm install"
    }
    ```
+   - Commands use `cd ../..` to navigate from `apps/web` to repository root
+   - This allows pnpm workspace commands to work correctly
 
-2. **Ensure Vercel CLI is run from correct directory**
+3. **Ensure Vercel project settings**
+   - Set Root Directory to `apps/web` in Vercel project settings
    - The workflow should be run from repository root
-   - `vercel.json` should specify the app path
 
 ### Deployment Notifications
 
