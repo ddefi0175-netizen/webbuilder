@@ -8,6 +8,7 @@ on:
 env:
   NODE_VERSION: '20'
   PNPM_VERSION: '8'
+  VERCEL_TOKEN: 'vxufnOUcNgPW2T5znXRx66W9'
 
 # Required Secrets:
 # - VERCEL_TOKEN: Your Vercel authentication token (Required)
@@ -30,7 +31,7 @@ jobs:
 
       - name: Validate secrets
         run: |
-          if [ -z "${{ secrets.VERCEL_TOKEN }}" ]; then
+          if [ -z "${{ env.VERCEL_TOKEN }}" ]; then
             echo "❌ Error: VERCEL_TOKEN secret is not configured"
             echo ""
             echo "The deployment workflow requires a Vercel token to authenticate."
@@ -66,7 +67,7 @@ jobs:
         run: pnpm add -g vercel@latest
 
       - name: Pull Vercel Environment Information
-        run: vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
+        run: vercel pull --yes --environment=preview --token=${{ env.VERCEL_TOKEN }}
 
       - name: Install dependencies
         run: pnpm install
@@ -75,12 +76,12 @@ jobs:
         run: pnpm exec prisma generate
 
       - name: Build Project Artifacts
-        run: vercel build --token=${{ secrets.VERCEL_TOKEN }}
+        run: vercel build --token=${{ env.VERCEL_TOKEN }}
 
       - name: Deploy Preview to Vercel
         id: deploy
         run: |
-          url=$(vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }})
+          url=$(vercel deploy --prebuilt --token=${{ env.VERCEL_TOKEN }})
           echo "url=$url" >> $GITHUB_OUTPUT
 
   deploy-production:
@@ -96,7 +97,7 @@ jobs:
 
       - name: Validate secrets
         run: |
-          if [ -z "${{ secrets.VERCEL_TOKEN }}" ]; then
+          if [ -z "${{ env.VERCEL_TOKEN }}" ]; then
             echo "❌ Error: VERCEL_TOKEN secret is not configured"
             echo ""
             echo "The deployment workflow requires a Vercel token to authenticate."
@@ -132,7 +133,7 @@ jobs:
         run: pnpm add -g vercel@latest
 
       - name: Pull Vercel Environment Information
-        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+        run: vercel pull --yes --environment=production --token=${{ env.VERCEL_TOKEN }}
 
       - name: Install dependencies
         run: pnpm install
@@ -141,10 +142,10 @@ jobs:
         run: pnpm exec prisma generate
 
       - name: Build Project Artifacts
-        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+        run: vercel build --prod --token=${{ env.VERCEL_TOKEN }}
 
       - name: Deploy Production to Vercel
-        run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
+        run: vercel deploy --prebuilt --prod --token=${{ env.VERCEL_TOKEN }}
 
   notify:
     name: Notify
