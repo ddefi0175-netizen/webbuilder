@@ -2,12 +2,62 @@ import { Ratelimit } from '@upstash/ratelimit';
 import { Redis } from '@upstash/redis';
 import { RateLimitError } from './errors';
 
+// Maximum number of quote removal iterations to prevent infinite loops
+const MAX_QUOTE_REMOVAL_ITERATIONS = 10;
+
+/**
+ * Clean environment variable values by removing surrounding quotes
+ * 
+ * This function handles cases where environment variables are accidentally set with
+ * quotes included in the value itself (e.g., `"https://url"` instead of `https://url`).
+ * 
+ * Features:
+ * - Removes matching pairs of single or double quotes from both ends
+ * - Handles nested/multiple layers of quotes (e.g., `""value""`)
+ * - Protects against mismatched quotes (e.g., `"value'` is not modified)
+ * - Includes iteration limit to prevent infinite loops on malformed input
+ * 
+ * @param value - The environment variable value to clean
+ * @returns The cleaned value with surrounding quotes removed, or undefined if input is undefined/empty
+ * 
+ * @example
+ * cleanEnvValue('"https://example.com"') // returns: https://example.com
+ * cleanEnvValue('""https://example.com""') // returns: https://example.com
+ * cleanEnvValue('"value\'') // returns: "value' (mismatched, not modified)
+ */
+function cleanEnvValue(value: string | undefined): string | undefined {
+    if (!value) return value;
+    // Remove surrounding quotes (both single and double) that might be in the env var
+    // Keep removing matching quote pairs from both ends until there are no more
+    let cleaned = value.trim();
+    let iterations = 0;
+    
+    // Only remove quotes if they match on both ends
+    while (cleaned.length >= 2 && iterations < MAX_QUOTE_REMOVAL_ITERATIONS) {
+        const startsWithDouble = cleaned.startsWith('"');
+        const endsWithDouble = cleaned.endsWith('"');
+        const startsWithSingle = cleaned.startsWith("'");
+        const endsWithSingle = cleaned.endsWith("'");
+        
+        if ((startsWithDouble && endsWithDouble) || (startsWithSingle && endsWithSingle)) {
+            cleaned = cleaned.slice(1, -1);
+            iterations++;
+        } else {
+            break;
+        }
+    }
+    return cleaned;
+}
+
 // Initialize Redis client (will be undefined if env vars are not set)
+const redisUrl = cleanEnvValue(process.env.UPSTASH_REDIS_REST_URL);
+const redisToken = cleanEnvValue(process.env.UPSTASH_REDIS_REST_TOKEN);
+
 const redis =
-    process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN
+    redisUrl && redisToken
         ? new Redis({
-              url: process.env.UPSTASH_REDIS_REST_URL,
-              token: process.env.UPSTASH_REDIS_REST_TOKEN,
+              url: redisUrl,
+              token: redisToken,
           })
         : null;
 
