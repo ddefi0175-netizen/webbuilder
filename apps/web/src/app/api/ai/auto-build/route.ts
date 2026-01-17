@@ -60,7 +60,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const systemPrompt = `You are an expert web developer and designer AI that generates complete website structures. 
+    const systemPrompt = `You are an expert web developer and designer AI that generates complete website structures.
 You create modern, responsive, accessible websites using a component-based architecture.
 
 Output Format: Return a JSON object with the following structure:

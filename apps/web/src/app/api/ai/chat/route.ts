@@ -16,7 +16,7 @@ function getOpenAIClient() {
     return new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 }
 
-const SYSTEM_PROMPT = `You are an expert web developer AI assistant integrated into a visual web builder. 
+const SYSTEM_PROMPT = `You are an expert web developer AI assistant integrated into a visual web builder.
 Your role is to help users create websites by:
 1. Generating components based on descriptions
 2. Suggesting styles and layouts

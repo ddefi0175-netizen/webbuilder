@@ -2,88 +2,153 @@
 
 ## Project Overview
 
-AI-powered web builder combining visual drag-and-drop editing with AI code generation. Turborepo monorepo with Next.js 14 frontend and shared AI service layer.
+AI-powered web builder combining visual drag-and-drop editing with AI code generation. Turborepo monorepo with Next.js 14 frontend and shared AI service layer backed by PostgreSQL, Prisma ORM, and OpenAI integration.
 
 ## Architecture
 
 ### Monorepo Structure
-- **apps/web**: Next.js 14 app with App Router (main user-facing application)
+- **apps/web**: Next.js 14 App Router, React 18, Tailwind CSS, TypeScript
 - **packages/ai-core**: Shared AI service layer (OpenAI integration, prompts, types)
-- **Turborepo**: Build orchestration - use `pnpm dev` to run all apps, `turbo` commands for builds
+- **Turborepo**: Build orchestration and caching - use `pnpm dev` to run all apps
+- **Database**: PostgreSQL with Prisma ORM (schema in `apps/web/prisma/schema.prisma`)
 
-### State Management Pattern
+### State Management
 Global state uses **Zustand with immer middleware** for immutable updates:
-- `editor-store.ts`: Canvas, component tree (Map<id, Component>), selection, history (undo/redo)
+- `editor-store.ts`: Canvas, component tree (`Map<id, Component>`), selection, history
 - `ai-store.ts`: Chat messages, streaming state, suggestions
 - `user-store.ts`: Auth, subscription, credits
 
-**Key Convention**: Component tree stored as `Map<string, Component>` not array. Use `getComponent(id)`, `getChildren(id)` helpers.
+**Key Pattern**: Component tree stored as `Map<string, Component>` NOT array. Always use `getComponent(id)`, `getChildren(id)` helper methods.
 
 ### Component System
-Components are data structures (not React components) rendered from definitions:
-- `component-definitions.ts`: Metadata for each component type (default props/styles, categories)
+Components are data structures (not React components) rendered by `ComponentRenderer`:
+- `component-definitions.ts`: Metadata for each type (default props/styles, categories)
 - `types/index.ts`: Core types (`Component`, `ComponentStyles`, `ComponentType`)
-- Each component has: `id`, `type`, `props`, `styles`, `children[]`, `parentId`
+- Each component: `id` (nanoid), `type`, `props`, `styles`, `children[]`, `parentId`
+- Root component always has `id: 'root'` (never delete or hardcode elsewhere)
 
-**Adding new component types**: Update `ComponentType` union → add definition → implement renderer
+**Adding component types**: Update `ComponentType` union → add definition → implement renderer in `canvas/`
 
 ## Development Workflows
 
 ### Running Locally
 ```bash
-pnpm install           # Install all workspace deps
-pnpm dev              # Start all apps (Next.js on :3000)
-pnpm build            # Production build all packages
-pnpm test             # Run Vitest tests
-pnpm lint             # ESLint across workspace
+pnpm install                # Install all workspace deps
+pnpm dev                    # Start all apps (Next.js on :3000)
+pnpm build                  # Production build all packages
+pnpm test                   # Run all Vitest tests
+pnpm lint                   # ESLint across workspace
+pnpm typecheck              # TypeScript check
+pnpm db:migrate             # Create new migration
+pnpm db:push                # Push schema changes to dev DB
+pnpm db:reset               # Reset database (dev only)
+pnpm db:studio              # Open Prisma Studio
 ```
 
 ### Testing
-- **Framework**: Vitest with jsdom
+- **Framework**: Vitest with jsdom (React component testing)
 - **Location**: `apps/web/src/__tests__/` mirroring src structure
-- **Config**: `vitest.config.ts` - path aliases match tsconfig
+- **Config**: `vitest.config.ts` with path aliases matching tsconfig
 - **Run**: `pnpm test` or `pnpm test:coverage`
+- **Pattern**: Test stores with immer mutations, mock external API calls with vi.mock()
 
-**Pattern**: Test stores with immer state updates, mock external API calls
-
-### Path Aliases
-TypeScript paths in `apps/web/tsconfig.json`:
+### Path Aliases (TypeScript)
+In `apps/web/tsconfig.json`:
 - `@/*` → `./src/*`
-- `@/components/*`, `@/lib/*`, `@/hooks/*`, `@/stores/*`, `@/types/*`
-
-**Always use aliases** in imports: `import { useEditorStore } from '@/stores/editor-store'`
+- Always use aliases: `import { useEditorStore } from '@/stores/editor-store'`
 
 ## AI Integration
+
+### OpenAI Configuration
+- **API Key**: `OPENAI_API_KEY` required in `.env.local` and Vercel
+- **Chat Model**: `OPENAI_MODEL_CHAT` (default: `gpt-4-turbo-preview`)
+- **Fast Model**: `OPENAI_MODEL_FAST` (default: `gpt-3.5-turbo`)
+- **Instance Pattern**: Call `getOpenAIClient()` in each route to get fresh OpenAI instance
 
 ### AI Service Architecture
 - **Package**: `packages/ai-core/src/ai-service.ts`
 - **Provider**: OpenAI SDK (GPT-4 for chat, GPT-3.5 for fast operations)
 - **Pattern**: Streaming responses for chat, structured JSON for code generation
 
-### Key AI Operations
+### API Routes (Next.js Route Handlers)
+Located in `apps/web/src/app/api/ai/`:
+- `/api/ai/chat` - Streaming chat with context (uses `gpt-4-turbo-preview`)
+- `/api/ai/generate-component` - JSON component structure (5 credits)
+- `/api/ai/generate-styles` - Tailwind-compatible styles (2 credits)
+- `/api/ai/explain` - Code explanation
+- `/api/ai/auto-build` - Full website generation (20 credits)
+
+**Route Pattern**: All routes require auth, track usage in DB, deduct credits, force dynamic rendering
+
+### AI Context
+Operations receive `AIContext` with:
+- Selected component details for context-aware suggestions
+- Current breakpoint state ('desktop' | 'tablet' | 'mobile')
+- Recent editor actions
+- Design system (colors, fonts, spacing)
+
+### Credit System
+- Store credits in `subscription.creditsRemaining`
+- Deduct before/during AI operations, track in `usage` table
+- Different operations cost different amounts (chat: 0, generate-component: 5, etc.)
+- Track via `db.usage.create({ userId, type: 'ai_chat', amount: 1 })`
+
+## Authentication & Security
+
+### NextAuth Configuration
+- **Strategy**: JWT sessions (30 days max age)
+- **File**: `apps/web/src/lib/auth.ts`
+- **Providers**: Credentials (email/password), Google OAuth, GitHub OAuth
+- **Adapter**: Prisma for DB persistence
+- **Middleware**: `apps/web/src/middleware.ts` - protects `/dashboard`, `/ai-builder`, `/credits`, `/templates`
+
+**Auth Flow**:
+1. Login via NextAuth provider
+2. JWT stored in session
+3. Use `getSession()` or `requireAuth()` in API routes
+4. Redirect unauthenticated users to `/auth/login`
+
+### Protected Routes Pattern
 ```typescript
-// Component generation
-generateComponent(description: string): Promise<ComponentGenerationResult>
+// In API routes
+import { requireAuth, getSession } from '@/lib/auth';
 
-// Style generation (Tailwind-friendly CSS)
-generateStyles(description: string, targetComponent): Promise<StyleGenerationResult>
-
-// Streaming chat
-chat(messages: ChatMessage[], context?: AIContext): AsyncGenerator<string>
+export async function POST(req: NextRequest) {
+    const session = await requireAuth(); // Throws 401 if no session
+    const userId = session.user.id;
+    // ...
+}
 ```
 
-**API Routes**: Located in `apps/web/src/app/api/ai/` (Next.js route handlers)
-- `/api/ai/chat` - Streaming chat responses
-- `/api/ai/generate-component` - Component generation
-- `/api/ai/generate-styles` - Style modifications
+### Rate Limiting
+- **Service**: Upstash Redis (optional but recommended)
+- **Functions**: `checkRateLimit()`, `getRateLimitIdentifier()`
+- **Pattern**: Check before expensive operations (AI requests)
+- **Config**: `apps/web/src/lib/rate-limit.ts`
 
-### Context Handling
-AI operations receive `AIContext` with:
-- Current component tree
-- Selected component details
-- Canvas breakpoint state
+## Database & Schema
 
-**Critical**: Always pass editor context to AI for context-aware suggestions
+### Prisma ORM
+- **Schema**: `apps/web/prisma/schema.prisma`
+- **Client**: Auto-generated in `node_modules/.prisma/client`
+- **Adapter**: PrismaAdapter for NextAuth
+- **Connection**: PostgreSQL via `DATABASE_URL`
+
+### Key Models
+- **User**: Auth identity with subscription and usage tracking
+- **Project**: User's created websites
+- **Subscription**: Tier (FREE/PRO/BUSINESS), credits, status
+- **Usage**: Track AI operation costs (type, amount, userId)
+- **Session**: NextAuth session persistence
+
+### Database Commands
+```bash
+pnpm db:generate   # Regenerate Prisma client after schema changes
+pnpm db:migrate    # Create and run migrations
+pnpm db:push       # Push schema to dev DB (non-production)
+pnpm db:reset      # Reset DB completely (dev only)
+pnpm db:studio     # GUI for DB inspection
+```
 
 ## Code Conventions
 
@@ -96,6 +161,33 @@ AI operations receive `AIContext` with:
 - `editor-store.ts` maintains `history: HistoryEntry[]` and `historyIndex`
 - **Call `saveHistory()`** before mutations to enable undo
 - Undo/redo operations restore entire component tree state
+
+### Database Interaction Pattern
+```typescript
+// Import Prisma client
+import { db } from '@/lib/db';
+
+// Query with auth check
+const user = await db.user.findUnique({
+    where: { id: userId },
+    include: { subscription: true }
+});
+
+// Track usage
+await db.usage.create({
+    data: {
+        userId,
+        type: 'ai_generate_component',
+        amount: 5, // Credits deducted
+    }
+});
+
+// Update subscription credits
+await db.subscription.update({
+    where: { userId },
+    data: { creditsRemaining: { decrement: 5 } }
+});
+```
 
 ### Keyboard Shortcuts
 Defined in `use-keyboard-shortcuts.ts`:
@@ -134,11 +226,54 @@ updateComponent(id, updates)
 ### API Route Pattern (Next.js App Router)
 ```typescript
 // apps/web/src/app/api/[route]/route.ts
-export async function POST(req: Request) {
-  const body = await req.json()
-  // Process
-  return Response.json(result)
+import { NextRequest, NextResponse } from 'next/server';
+import { requireAuth } from '@/lib/auth';
+import { db } from '@/lib/db';
+import { checkRateLimit } from '@/lib/rate-limit';
+
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+
+export async function POST(req: NextRequest) {
+  const session = await requireAuth();
+  const userId = session.user.id;
+
+  // Rate limiting
+  await checkRateLimit(userId);
+
+  const body = await req.json();
+
+  // Business logic
+
+  // Track usage
+  await db.usage.create({
+    data: { userId, type: 'operation_type', amount: 1 }
+  });
+
+  return NextResponse.json(result);
 }
+```
+
+### Environment Variables (Required)
+In `.env.local` (development) or Vercel (production):
+```env
+# Database
+DATABASE_URL="postgresql://user:pass@host:5432/db"
+
+# Auth
+NEXTAUTH_SECRET="random-32-char-string"
+NEXTAUTH_URL="http://localhost:3000"
+
+# AI (REQUIRED)
+OPENAI_API_KEY="sk-..."
+OPENAI_MODEL_CHAT="gpt-4-turbo-preview"
+OPENAI_MODEL_FAST="gpt-3.5-turbo"
+
+# Optional
+UPSTASH_REDIS_REST_URL="https://..."
+UPSTASH_REDIS_REST_TOKEN="..."
+GOOGLE_CLIENT_ID="..."
+GITHUB_ID="..."
 ```
 
 ## Critical Files for AI Agents

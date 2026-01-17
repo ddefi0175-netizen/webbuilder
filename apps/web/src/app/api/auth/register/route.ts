@@ -4,6 +4,7 @@ import { hashPassword, generateToken } from '@/lib/auth';
 import { registerSchema } from '@/lib/validation';
 import { ValidationError, handleApiError, getErrorStatus } from '@/lib/errors';
 import { checkRateLimit, getRateLimitIdentifier } from '@/lib/rate-limit';
+import { sendEmail, getVerificationEmailHtml } from '@/lib/email';
 
 export async function POST(req: NextRequest) {
     try {
@@ -66,10 +67,18 @@ export async function POST(req: NextRequest) {
             },
         });
 
-        // TODO: Send verification email
-        // For now, we'll just return success
-        console.log(`Verification token for ${email}: ${verificationToken}`);
-        console.log(`Verification URL: ${process.env.NEXT_PUBLIC_APP_URL}/auth/verify-email?token=${verificationToken}`);
+        // Send verification email
+        const verificationUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/auth/verify-email?token=${verificationToken}`;
+        try {
+            await sendEmail({
+                to: email,
+                subject: 'Verify your WebBuilder account',
+                html: getVerificationEmailHtml(verificationUrl, name || undefined),
+            });
+        } catch (emailError) {
+            console.error('Failed to send verification email:', emailError);
+            // Don't fail registration if email fails - user can request new verification
+        }
 
         return NextResponse.json(
             {
