@@ -6,26 +6,37 @@ import { RateLimitError } from './errors';
 function cleanEnvValue(value: string | undefined): string | undefined {
     if (!value) return value;
     // Remove surrounding quotes (both single and double) that might be in the env var
-    // Keep removing quotes from both ends until there are no more
+    // Keep removing matching quote pairs from both ends until there are no more
     let cleaned = value.trim();
     let iterations = 0;
     const maxIterations = 10; // Safety limit to prevent infinite loops
     
-    while (cleaned.length >= 2 && iterations < maxIterations &&
-           ((cleaned.startsWith('"') && cleaned.endsWith('"')) || 
-            (cleaned.startsWith("'") && cleaned.endsWith("'")))) {
-        cleaned = cleaned.slice(1, -1);
-        iterations++;
+    // Only remove quotes if they match on both ends
+    while (cleaned.length >= 2 && iterations < maxIterations) {
+        const startsWithDouble = cleaned.startsWith('"');
+        const endsWithDouble = cleaned.endsWith('"');
+        const startsWithSingle = cleaned.startsWith("'");
+        const endsWithSingle = cleaned.endsWith("'");
+        
+        if ((startsWithDouble && endsWithDouble) || (startsWithSingle && endsWithSingle)) {
+            cleaned = cleaned.slice(1, -1);
+            iterations++;
+        } else {
+            break;
+        }
     }
     return cleaned;
 }
 
 // Initialize Redis client (will be undefined if env vars are not set)
+const redisUrl = cleanEnvValue(process.env.UPSTASH_REDIS_REST_URL);
+const redisToken = cleanEnvValue(process.env.UPSTASH_REDIS_REST_TOKEN);
+
 const redis =
-    process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN
+    redisUrl && redisToken
         ? new Redis({
-              url: cleanEnvValue(process.env.UPSTASH_REDIS_REST_URL)!,
-              token: cleanEnvValue(process.env.UPSTASH_REDIS_REST_TOKEN)!,
+              url: redisUrl,
+              token: redisToken,
           })
         : null;
 
