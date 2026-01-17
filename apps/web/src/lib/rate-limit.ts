@@ -8,10 +8,14 @@ function cleanEnvValue(value: string | undefined): string | undefined {
     // Remove surrounding quotes (both single and double) that might be in the env var
     // Keep removing quotes from both ends until there are no more
     let cleaned = value.trim();
-    while (cleaned.length >= 2 && 
+    let iterations = 0;
+    const maxIterations = 10; // Safety limit to prevent infinite loops
+    
+    while (cleaned.length >= 2 && iterations < maxIterations &&
            ((cleaned.startsWith('"') && cleaned.endsWith('"')) || 
             (cleaned.startsWith("'") && cleaned.endsWith("'")))) {
         cleaned = cleaned.slice(1, -1);
+        iterations++;
     }
     return cleaned;
 }
