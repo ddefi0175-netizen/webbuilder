@@ -2,6 +2,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
 import { db } from '@/lib/db';
+import { sendEmail, getSubscriptionCancelledEmailHtml, getPaymentFailedEmailHtml } from '@/lib/email';
 
 const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET;
 
@@ -104,12 +105,12 @@ async function handleCheckoutCompleted(session: any) {
     try {
         // Get price ID to determine tier
         const priceId = session.line_items?.data?.[0]?.price?.id;
-        
+
         if (!priceId) {
             console.error('No price ID found in checkout session');
             return;
         }
-        
+
         // Determine tier based on price ID (configure these in your env)
         let tier: 'FREE' | 'PRO' | 'BUSINESS' = 'PRO';
         let credits = 1000;
@@ -215,7 +216,20 @@ async function handleSubscriptionCanceled(subscription: any) {
         });
 
         console.log('Subscription canceled:', subscription.id);
-        // TODO: Send cancellation email
+
+        // Send cancellation email
+        try {
+            const user = await db.user.findUnique({ where: { id: subscription.userId } });
+            if (user?.email) {
+                await sendEmail({
+                    to: user.email,
+                    subject: 'Your WebBuilder subscription has been cancelled',
+                    html: getSubscriptionCancelledEmailHtml(user.name || undefined),
+                });
+            }
+        } catch (emailError) {
+            console.error('Failed to send cancellation email:', emailError);
+        }
     } catch (error) {
         console.error('Error handling subscription cancellation:', error);
     }
@@ -250,7 +264,7 @@ async function handlePaymentFailed(invoice: any) {
     const customerId = invoice.customer;
 
     try {
-        await db.subscription.update({
+        const subscription = await db.subscription.update({
             where: { stripeCustomerId: customerId },
             data: {
                 status: 'PAST_DUE',
@@ -258,7 +272,20 @@ async function handlePaymentFailed(invoice: any) {
         });
 
         console.log('Payment failed:', invoice.id);
-        // TODO: Send payment failed email
+
+        // Send payment failed email
+        try {
+            const user = await db.user.findUnique({ where: { id: subscription.userId } });
+            if (user?.email) {
+                await sendEmail({
+                    to: user.email,
+                    subject: 'Payment failed for your WebBuilder subscription',
+                    html: getPaymentFailedEmailHtml(user.name || undefined),
+                });
+            }
+        } catch (emailError) {
+            console.error('Failed to send payment failed email:', emailError);
+        }
     } catch (error) {
         console.error('Error handling payment failure:', error);
     }

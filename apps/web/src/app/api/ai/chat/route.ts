@@ -6,6 +6,9 @@ import { checkRateLimit, getRateLimitIdentifier, getRateLimitType } from '@/lib/
 import { aiChatSchema } from '@/lib/validation';
 import { ValidationError, handleApiError, getErrorStatus } from '@/lib/errors';
 
+// Force dynamic rendering for this route
+export const dynamic = 'force-dynamic';
+
 function getOpenAIClient() {
     if (!process.env.OPENAI_API_KEY) {
         throw new Error('OpenAI API key not configured');
@@ -13,7 +16,7 @@ function getOpenAIClient() {
     return new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 }
 
-const SYSTEM_PROMPT = `You are an expert web developer AI assistant integrated into a visual web builder. 
+const SYSTEM_PROMPT = `You are an expert web developer AI assistant integrated into a visual web builder.
 Your role is to help users create websites by:
 1. Generating components based on descriptions
 2. Suggesting styles and layouts

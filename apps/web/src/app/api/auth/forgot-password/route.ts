@@ -4,6 +4,7 @@ import { generateToken } from '@/lib/auth';
 import { forgotPasswordSchema } from '@/lib/validation';
 import { ValidationError, NotFoundError, handleApiError, getErrorStatus } from '@/lib/errors';
 import { checkRateLimit, getRateLimitIdentifier } from '@/lib/rate-limit';
+import { sendEmail, getPasswordResetEmailHtml } from '@/lib/email';
 
 export async function POST(req: NextRequest) {
     try {
@@ -46,9 +47,18 @@ export async function POST(req: NextRequest) {
             },
         });
 
-        // TODO: Send password reset email
-        console.log(`Password reset token for ${email}: ${resetToken}`);
-        console.log(`Reset URL: ${process.env.NEXT_PUBLIC_APP_URL}/auth/reset-password?token=${resetToken}`);
+        // Send password reset email
+        const resetUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/auth/reset-password?token=${resetToken}`;
+        try {
+            await sendEmail({
+                to: email,
+                subject: 'Reset your WebBuilder password',
+                html: getPasswordResetEmailHtml(resetUrl, user.name || undefined),
+            });
+        } catch (emailError) {
+            console.error('Failed to send password reset email:', emailError);
+            // Don't reveal if email failed for security reasons
+        }
 
         return NextResponse.json({
             success: true,

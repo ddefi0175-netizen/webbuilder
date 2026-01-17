@@ -7,7 +7,7 @@ import GoogleProvider from 'next-auth/providers/google';
 import GitHubProvider from 'next-auth/providers/github';
 import { PrismaAdapter } from '@auth/prisma-adapter';
 import { db } from './db';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import { UnauthorizedError } from './errors';
 import NextAuth from 'next-auth';
 
@@ -106,7 +106,7 @@ export const authOptions: NextAuthConfig = {
             }
             return session;
         },
-        async signIn({ user, account, profile }) {
+        async signIn({ user, account }) {
             // For OAuth providers, ensure email is verified
             if (account?.provider === 'google' || account?.provider === 'github') {
                 if (user.email) {
@@ -123,7 +123,7 @@ export const authOptions: NextAuthConfig = {
         async createUser({ user }: { user: User }) {
             // Create default subscription for new users
             if (!user.id) return;
-            
+
             await db.subscription.create({
                 data: {
                     userId: user.id,
