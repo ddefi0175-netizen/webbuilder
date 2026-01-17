@@ -37,7 +37,7 @@
         "db:push": "pnpm --filter api db:push",
         "db:seed": "pnpm --filter api db:seed",
         "db:studio": "pnpm --filter api db:studio",
-        "prepare": "node -e \"if (process.env.CI) process.exit(0); process.exit(1)\" || husky install"
+        "prepare": "node -e \"if (!process.env.CI) process.exit(1)\" || husky install"
     },
     "devDependencies": {
         "@types/node": "^20.10.0",
