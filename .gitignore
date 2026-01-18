@@ -58,3 +58,4 @@ prisma/generated/
 *.key
 .vercel
 .netlify
+.env*.local
