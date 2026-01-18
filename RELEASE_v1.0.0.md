@@ -49,6 +49,7 @@ This is the first production-ready release of **AI WebBuilder**, featuring a com
 ## 🛠️ Technical Stack
 
 ### Frontend
+
 - **Next.js 14** (App Router, Server Components)
 - **React 18** with TypeScript
 - **Tailwind CSS** for styling
@@ -57,6 +58,7 @@ This is the first production-ready release of **AI WebBuilder**, featuring a com
 - **next-themes** for dark mode
 
 ### Backend
+
 - **Next.js API Routes** (serverless functions)
 - **PostgreSQL** database
 - **Prisma ORM** for type-safe queries
@@ -65,11 +67,13 @@ This is the first production-ready release of **AI WebBuilder**, featuring a com
 - **nodemailer** for email sending
 
 ### AI & Services
+
 - **OpenAI API** (GPT-4 & GPT-3.5)
 - **Upstash Redis** (optional, for rate limiting)
 - **Vercel** deployment platform
 
 ### Development
+
 - **Turborepo** monorepo management
 - **pnpm** package manager
 - **Vitest** for unit testing
@@ -79,10 +83,12 @@ This is the first production-ready release of **AI WebBuilder**, featuring a com
 ## 📦 What's Included
 
 ### Packages
+
 - `@webbuilder/web` - Next.js application
 - `@webbuilder/ai-core` - Shared AI service layer
 
 ### Documentation
+
 - [Authentication Implementation Guide](AUTH_IMPLEMENTATION_COMPLETE.md)
 - [Deployment Checklist](DEPLOYMENT_CHECKLIST.md)
 - [Implementation Summary](IMPLEMENTATION_SUMMARY.md)
@@ -119,7 +125,7 @@ pnpm db:push
 pnpm dev
 ```
 
-Visit http://localhost:3000
+Visit [http://localhost:3000](http://localhost:3000)
 
 ### Environment Variables
 
@@ -140,12 +146,14 @@ See `.env.example` for full list.
 ## 🧪 Testing & Quality
 
 ### Test Results
+
 - ✅ **43 passing tests** (5 skipped - browser environment required)
 - ✅ **100% ESLint compliance** (no warnings or errors)
 - ✅ **0 TypeScript errors** across all packages
 - ✅ **Production build successful** (all routes compiled)
 
 ### Test Coverage
+
 - Editor store (12 tests)
 - AI store (12 tests)
 - Persistence (6 tests)
@@ -155,24 +163,28 @@ See `.env.example` for full list.
 ## 🔒 Security Features
 
 ### Password Security
+
 - bcryptjs hashing with 12 salt rounds
 - Minimum 8 character requirement
 - No plain text storage
 - Secure password reset tokens
 
 ### Session Security
+
 - HTTP-only JWT cookies
 - SameSite strict policy
 - Secure flag in production
 - 30-day max session age
 
 ### Rate Limiting
+
 - 5 auth requests per 15 minutes
 - 20 AI requests per minute per user
 - IP-based and user-based tracking
 - Configurable limits per endpoint
 
 ### Token Security
+
 - Cryptographically secure random generation (32 bytes)
 - Time-limited expiry (24h verify, 1h reset)
 - One-time use for password resets
@@ -181,6 +193,7 @@ See `.env.example` for full list.
 ## 📊 Database Schema
 
 ### Core Models
+
 - **User** - Authentication and profile
 - **Session** - NextAuth sessions
 - **VerificationToken** - Email verification
@@ -190,6 +203,7 @@ See `.env.example` for full list.
 - **Usage** - AI operation tracking
 
 ### Migrations
+
 All migrations included and tested. Run `pnpm db:push` to apply.
 
 ## 🌐 Deployment
@@ -214,7 +228,6 @@ Compatible with any Node.js hosting platform:
 
 ## 📝 API Documentation
 
-### Authentication Endpoints
 - `POST /api/auth/register` - User registration
 - `GET/POST /api/auth/[...nextauth]` - NextAuth handlers
 - `GET/POST /api/auth/verify-email` - Email verification
@@ -222,6 +235,7 @@ Compatible with any Node.js hosting platform:
 - `POST /api/auth/reset-password` - Reset password
 
 ### AI Endpoints (Protected)
+
 - `POST /api/ai/chat` - AI chat streaming
 - `POST /api/ai/generate-component` - Generate component
 - `POST /api/ai/generate-styles` - Generate styles
@@ -229,23 +243,29 @@ Compatible with any Node.js hosting platform:
 - `POST /api/ai/auto-build` - Auto-build website
 
 ### User Endpoints (Protected)
+Auto-build website
+
+### User Endpoints (Protected)
 - `GET/PATCH /api/user/profile` - User profile
 - `GET/POST /api/user/projects` - Project management
 - `PATCH/DELETE /api/user/projects/:id` - Project operations
 - `GET /api/user/usage` - Usage statistics
 
-## 🎯 Roadmap
 
-### Near-term (v1.1.0)
 - [ ] Two-factor authentication (2FA/TOTP)
 - [ ] Passwordless magic link login
 - [ ] Social account linking
 - [ ] Session management UI
 
 ### Mid-term (v1.2.0)
+
 - [ ] Real-time collaboration
 - [ ] Enhanced AI template library
 - [ ] Component marketplace
+- [ ] White-label capabilities
+
+### Long-term (v2.0.0)
+place
 - [ ] White-label capabilities
 
 ### Long-term (v2.0.0)
@@ -254,11 +274,13 @@ Compatible with any Node.js hosting platform:
 - [ ] Multi-language support
 - [ ] Mobile app (React Native)
 
-## 🐛 Known Issues
 
-### Minor
 1. **Peer Dependency Warning**: nodemailer version mismatch (not critical)
 2. **Next.js Security**: Version 14.0.4 has known vulnerabilities (upgrade recommended)
+3. **Persistence Tests**: 5 tests require browser environment (work in actual browser)
+
+### Planned Fixes
+rity**: Version 14.0.4 has known vulnerabilities (upgrade recommended)
 3. **Persistence Tests**: 5 tests require browser environment (work in actual browser)
 
 ### Planned Fixes
@@ -285,9 +307,9 @@ Built with amazing open-source technologies:
 - [Tailwind CSS](https://tailwindcss.com/)
 - [Zustand](https://zustand-demo.pmnd.rs/) state management
 
-## 🔗 Links
-
-- **Repository**: https://github.com/ddefi0175-netizen/webbuilder
+## 🔗 Links[https://github.com/ddefi0175-netizen/webbuilder](https://github.com/ddefi0175-netizen/webbuilder)
+- **Issues**: [https://github.com/ddefi0175-netizen/webbuilder/issues](https://github.com/ddefi0175-netizen/webbuilder/issues)
+- **Discussions**: [https://github.com/ddefi0175-netizen/webbuilder/discussions](https://github.com/ddefi0175-netizen/webbuilder/discussions)
 - **Issues**: https://github.com/ddefi0175-netizen/webbuilder/issues
 - **Discussions**: https://github.com/ddefi0175-netizen/webbuilder/discussions
 - **Documentation**: [/docs](/docs)
