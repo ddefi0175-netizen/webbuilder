@@ -146,26 +146,26 @@ model Subscription {
 
 ### Authentication
 
-| Endpoint | Method | Auth | Description |
-|----------|--------|------|-------------|
-| `/api/auth/register` | POST | No | User registration |
-| `/api/auth/[...nextauth]` | GET/POST | No | NextAuth handlers (login/logout) |
-| `/api/auth/verify-email` | GET | No | Email verification (token) |
-| `/api/auth/verify-email` | POST | No | Verify or resend verification |
-| `/api/auth/forgot-password` | POST | No | Request password reset |
-| `/api/auth/reset-password` | POST | No | Reset password with token |
+| Endpoint                      | Method   | Auth | Description                         |
+| ----------------------------- | -------- | ---- | ----------------------------------- |
+| `/api/auth/register`          | POST     | No   | User registration                   |
+| `/api/auth/[...nextauth]`     | GET/POST | No   | NextAuth handlers (login/logout)    |
+| `/api/auth/verify-email`      | GET      | No   | Email verification (token)          |
+| `/api/auth/verify-email`      | POST     | No   | Verify or resend verification       |
+| `/api/auth/forgot-password`   | POST     | No   | Request password reset              |
+| `/api/auth/reset-password`    | POST     | No   | Reset password with token           |
 
 ### User Management (Protected)
 
-| Endpoint | Method | Auth | Description |
-|----------|--------|------|-------------|
-| `/api/user/profile` | GET | Yes | Get user profile |
-| `/api/user/profile` | PATCH | Yes | Update profile |
-| `/api/user/usage` | GET | Yes | Get usage statistics |
-| `/api/user/projects` | GET | Yes | List user projects |
-| `/api/user/projects` | POST | Yes | Create project |
-| `/api/user/projects/:id` | PATCH | Yes | Update project |
-| `/api/user/projects/:id` | DELETE | Yes | Delete project |
+| Endpoint                   | Method | Auth | Description           |
+| -------------------------- | ------ | ---- | --------------------- |
+| `/api/user/profile`        | GET    | Yes  | Get user profile      |
+| `/api/user/profile`        | PATCH  | Yes  | Update profile        |
+| `/api/user/usage`          | GET    | Yes  | Get usage statistics  |
+| `/api/user/projects`       | GET    | Yes  | List user projects    |
+| `/api/user/projects`       | POST   | Yes  | Create project        |
+| `/api/user/projects/:id`   | PATCH  | Yes  | Update project        |
+| `/api/user/projects/:id`   | DELETE | Yes  | Delete project        |
 
 ## Testing Results
 
@@ -240,6 +240,7 @@ curl -X POST http://localhost:3000/api/auth/register \
 ```
 
 Response:
+
 ```json
 {
   "success": true,
@@ -259,6 +260,7 @@ curl http://localhost:3000/api/auth/verify-email?token=<verification-token>
 ```
 
 Response:
+
 ```json
 {
   "success": true,
