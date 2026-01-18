@@ -1,5 +1,7 @@
 'use client';
 
+/* eslint-disable @next/next/no-img-element */
+
 import { useDraggable, useDroppable } from '@dnd-kit/core';
 import { useEditorStore } from '@/stores/editor-store';
 import { cn } from '@/lib/utils';
