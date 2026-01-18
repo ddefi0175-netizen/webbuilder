@@ -1,5 +1,7 @@
 'use client';
 
+/* eslint-disable @next/next/no-img-element, jsx-a11y/alt-text */
+
 import { useState } from 'react';
 import {
     Search,
