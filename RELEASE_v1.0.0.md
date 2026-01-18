@@ -319,7 +319,7 @@ Built with amazing open-source technologies:
 
 ## 📞 Support
 
-- **Email**: support@your-domain.com (configure your domain)
+- **Email**: [support@your-domain.com](mailto:support@your-domain.com) (configure your domain)
 - **GitHub Issues**: Bug reports and feature requests
 - **GitHub Discussions**: Questions and community support
 
