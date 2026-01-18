@@ -16,6 +16,7 @@ import {
     ArrowRight
 } from 'lucide-react';
 import Link from 'next/link';
+import { signIn } from 'next-auth/react';
 import { cn } from '@/lib/utils';
 
 interface AuthFormProps {
@@ -220,11 +221,19 @@ export function AuthForm({ mode, onSubmit, isLoading }: AuthFormProps) {
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
-                        <Button variant="outline" type="button">
+                        <Button
+                            variant="outline"
+                            type="button"
+                            onClick={() => signIn('google', { callbackUrl: '/dashboard' })}
+                        >
                             <Chrome className="h-4 w-4 mr-2" />
                             Google
                         </Button>
-                        <Button variant="outline" type="button">
+                        <Button
+                            variant="outline"
+                            type="button"
+                            onClick={() => signIn('github', { callbackUrl: '/dashboard' })}
+                        >
                             <Github className="h-4 w-4 mr-2" />
                             GitHub
                         </Button>
