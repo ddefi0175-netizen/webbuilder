@@ -99,6 +99,7 @@ This is the first production-ready release of **AI WebBuilder**, featuring a com
 ## 🚀 Getting Started
 
 ### Prerequisites
+
 - Node.js 18+ and pnpm 8+
 - PostgreSQL database
 - OpenAI API key (for AI features)
@@ -220,6 +221,7 @@ See [DEPLOYMENT_CHECKLIST.md](DEPLOYMENT_CHECKLIST.md) for detailed instructions
 ### Other Platforms
 
 Compatible with any Node.js hosting platform:
+
 - Railway
 - Render
 - DigitalOcean App Platform
@@ -227,6 +229,8 @@ Compatible with any Node.js hosting platform:
 - Netlify (with adapter)
 
 ## 📝 API Documentation
+
+### Authentication Endpoints
 
 - `POST /api/auth/register` - User registration
 - `GET/POST /api/auth/[...nextauth]` - NextAuth handlers
@@ -243,14 +247,15 @@ Compatible with any Node.js hosting platform:
 - `POST /api/ai/auto-build` - Auto-build website
 
 ### User Endpoints (Protected)
-Auto-build website
 
-### User Endpoints (Protected)
 - `GET/PATCH /api/user/profile` - User profile
 - `GET/POST /api/user/projects` - Project management
 - `PATCH/DELETE /api/user/projects/:id` - Project operations
 - `GET /api/user/usage` - Usage statistics
 
+## 🎯 Roadmap
+
+### Near-term (v1.1.0)
 
 - [ ] Two-factor authentication (2FA/TOTP)
 - [ ] Passwordless magic link login
@@ -265,25 +270,22 @@ Auto-build website
 - [ ] White-label capabilities
 
 ### Long-term (v2.0.0)
-place
-- [ ] White-label capabilities
 
-### Long-term (v2.0.0)
 - [ ] Enterprise SSO (SAML)
 - [ ] Advanced analytics dashboard
 - [ ] Multi-language support
 - [ ] Mobile app (React Native)
 
+## 🐛 Known Issues
+
+### Minor
 
 1. **Peer Dependency Warning**: nodemailer version mismatch (not critical)
 2. **Next.js Security**: Version 14.0.4 has known vulnerabilities (upgrade recommended)
 3. **Persistence Tests**: 5 tests require browser environment (work in actual browser)
 
 ### Planned Fixes
-rity**: Version 14.0.4 has known vulnerabilities (upgrade recommended)
-3. **Persistence Tests**: 5 tests require browser environment (work in actual browser)
 
-### Planned Fixes
 - Upgrade to Next.js 14.1+ (latest stable)
 - Add integration tests for email sending
 - Enhance API route test coverage
@@ -299,6 +301,7 @@ rity**: Version 14.0.4 has known vulnerabilities (upgrade recommended)
 ## 🙏 Acknowledgments
 
 Built with amazing open-source technologies:
+
 - [Next.js](https://nextjs.org/) by Vercel
 - [OpenAI](https://openai.com/) API
 - [Prisma](https://www.prisma.io/) ORM
@@ -307,11 +310,11 @@ Built with amazing open-source technologies:
 - [Tailwind CSS](https://tailwindcss.com/)
 - [Zustand](https://zustand-demo.pmnd.rs/) state management
 
-## 🔗 Links[https://github.com/ddefi0175-netizen/webbuilder](https://github.com/ddefi0175-netizen/webbuilder)
+## 🔗 Links
+
+- **Repository**: [https://github.com/ddefi0175-netizen/webbuilder](https://github.com/ddefi0175-netizen/webbuilder)
 - **Issues**: [https://github.com/ddefi0175-netizen/webbuilder/issues](https://github.com/ddefi0175-netizen/webbuilder/issues)
 - **Discussions**: [https://github.com/ddefi0175-netizen/webbuilder/discussions](https://github.com/ddefi0175-netizen/webbuilder/discussions)
-- **Issues**: https://github.com/ddefi0175-netizen/webbuilder/issues
-- **Discussions**: https://github.com/ddefi0175-netizen/webbuilder/discussions
 - **Documentation**: [/docs](/docs)
 
 ## 📞 Support
